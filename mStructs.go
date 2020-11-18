@@ -27,6 +27,7 @@ type APYs struct {
 	RENBTC     string `json:"renbtc"`
 	WbtcTBTC   string `json:"wbtc_tbtc"`
 	FARM       string `json:"farm"`
+	UpdatedAt  string `json:"updatedAt"`
 } /*curvefi3pool, curvefiy, curvefibusd, curvefisbtc
  */
 
@@ -119,15 +120,6 @@ type BoostT struct {
   },
 */
 
-// RespNameY ... account and login details
-/*Token       ... JWT Token
-CreatedAt   ... time this account was created
-*/
-type RespNameY struct {
-	Token string `json:"token"`
-	Level int    `json:"level"`
-} //	Wallet      []CoinOut `json:"wallet"`
-
 // InputLambda of all Lambda functions ...
 type InputLambda struct {
 	Body       ReqBody `json:"reqBody"`
@@ -141,22 +133,92 @@ type InputLambda struct {
 //URLvalues   url.Values  `json:"urlValues"`
 //ContentType string  `json:"contentType"`
 
-// ReqBody of all APIs ...
+// ReqBody of all APIs ... ALL inputs are string!
 type ReqBody struct {
-	SourceURL  string `json:"sourceURL"`
-	PerfPeriod string `json:"perfPeriod"`
+	SourceURL     string   `json:"sourceURL"`
+	PerfPeriod    string   `json:"perfPeriod"`
+	UserID        string   `json:"userID"`
+	VaultID       string   `json:"vaultID"`
+	RewardID      string   `json:"rewardID"`
+	EthereumAddr  string   `json:"ethereumAddr"`
+	Reward        string   `json:"reward"`
+	UpdatedAt     string   `json:"updatedAt"`
+	UplineID      string   `json:"uplineID"`
+	DownlineIDs   string   `json:"downlineIDs"`
+	EthereumAddrs []string `json:"ethereumAddrs"`
+	Offset        string   `json:"offset"`
+	Amount        string   `json:"amount"`
 }
 
 // HTPMPattern string `json:"htmlPattern"`
 // RegexpStr   string `json:"regexpStr"`
 
-// TableNameX ... account verification table details
-/*ID          ... primary key
-MailAddress ... Email address
-*/
+// TableNameX ...
 type TableNameX struct {
-	ID          int    `json:"id"`
-	MailAddress string `json:"mail_address"`
+	ID           int    `json:"id"`
+	EthereumAddr string `json:"ethereumAddr"`
+}
+
+// RespUser ... account and login details
+/*Token       ... JWT Token
+CreatedAt   ... time this account was created
+*/
+type RespUser struct {
+	ID            string `json:"id"`
+	EthereumAddr  string `json:"ethAddress"`
+	Reward        string `json:"reward"`
+	UpdatedAt     string `json:"updatedAt"`
+	UplineID      string `json:"uplineID"`
+	DownlineIDs   string `json:"downlineIDs"`
+	RiskCheckedAt string `json:"riskCheckedAt"`
+} //	Wallet      []CoinOut `json:"wallet"`
+
+// Reward ...
+/*ID          ... primary key
+Reward        ... float
+*/
+type Reward struct {
+	ID        string `json:"id"`
+	UserID    string `json:"userID"`
+	VaultID   string `json:"vaultID"`
+	Reward    string `json:"reward"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
+// RespRewardC ... account and login details
+type RespRewardC struct {
+	NewRowID string `json:"newRowID"`
+} //	Wallet      []CoinOut `json:"wallet"`
+
+// RespRewardR ...
+/*ID          ... primary key
+Reward        ... float
+*/
+type RespRewardR struct {
+	ID        string `json:"id"`
+	UserID    string `json:"userID"`
+	VaultID   string `json:"vaultID"`
+	Reward    string `json:"reward"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
+// VaultToEthAddr ...
+/*
+VaultID          ... primary key
+EthereumAddr  ... string
+*/
+type VaultToEthAddr struct {
+	VaultID      string `json:"vaultID"`
+	EthereumAddr string `json:"ethereumAddr"`
+}
+
+// RespVaultEthAddrR ...
+/*ID          ... primary key
+Reward        ... float
+*/
+type RespVaultEthAddrR struct {
+	VaultID      string `json:"vaultID"`
+	EthereumAddr string `json:"ethereumAddr"`
 }
 
 // RoutineInputs ...
@@ -169,7 +231,54 @@ type RoutineInputs struct {
 
 // RoutineOut ...
 type RoutineOut struct {
-	Code        string `json:"Code"`
-	Mesg        string `json:"mesg"`
-	RespRoutine string `json:"respRoutine"`
+	Code        string      `json:"Code"`
+	Mesg        string      `json:"mesg"`
+	RespRoutine interface{} `json:"respRoutine"`
+}
+
+// AnChainOut ...
+type AnChainOut struct {
+	Data   map[string]AnChainData `json:"data"`
+	ErrMsg string                 `json:"err_msg"`
+	Status int                    `json:"status"`
+}
+
+// AnChainData ...
+type AnChainData struct {
+	IsAddrValid bool     `json:"is_address_valid"`
+	Risk        Risk     `json:"risk"`
+	Self        Self     `json:"self"`
+	Activity    Activity `json:"activity"`
+}
+
+// Activity ...
+type Activity struct {
+	SuspicousActivity         []SuspiciousActivity `json:"suspicious_activity"`
+	SuspiciousActivityDeclare string               `json:"suspicious_activity_declare"`
+	VerdictTime               int                  `json:"verdict_time"`
+}
+
+// SuspiciousActivity ...
+type SuspiciousActivity struct {
+	AggrType    string   `json:"aggr_type"`
+	Category    string   `json:"category"`
+	Description string   `json:"description"`
+	Entity      string   `json:"entity"`
+	TxnCnt      int      `json:"txn_cnt"`
+	TxnDirect   int      `json:"txn_direct"`
+	TxnHashes   []string `json:"txn_hashes"`
+	TxnVol      float64  `json:"txn_vol"`
+}
+
+// Self ...
+type Self struct {
+	Category []string `json:"category"`
+	Detail   []string `json:"detail"`
+}
+
+// Risk ...
+type Risk struct {
+	Level       int `json:"level"`
+	Score       int `json:"score"`
+	VerdictTime int `json:"verdict_time"`
 }

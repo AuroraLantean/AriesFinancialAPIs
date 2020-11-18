@@ -14,7 +14,7 @@ import (
 @brief scraper API
 see scraper function description below
 
-@author Raymond Lieu
+@author 
 @date   2020-11-04
 */
 

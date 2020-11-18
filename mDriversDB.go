@@ -1,6 +1,6 @@
 package main
 
-/*@file mDrivers.go
+/*@file mDriversDB.go
 @brief various driver functions
 see function descriptions below
 
@@ -14,26 +14,17 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
-
-func loadEnv() string {
-	err := godotenv.Load()
-	if err != nil {
-		print("cannot load env file. err:", err)
-		return "cannot load env file"
-	}
-	return "ok"
-}
 
 // connection to DB
 // import	(_ "github.com/go-sql-driver/mysql")
-func dbConn(dbID int) (*sql.DB,
+func dbConn() (*sql.DB,
 	error) {
 	print("-----------== dbConn()")
+	dbID := toInt(os.Getenv("DATABASE_ID"))
 	if dbID < 0 {
-		print("dbConn() input are not valid. dbID:", dbID)
-		return nil, errors.New("dbConn() input are not valid")
+		print("DATABASE_ID in .env is invalid. dbID =", dbID)
+		return nil, errors.New("DATABASE_ID in .env is invalid")
 	}
 
 	var dbDriver, dbUser, dbPass, dbURL, dbPort, dbSchema string
@@ -50,7 +41,7 @@ func dbConn(dbID int) (*sql.DB,
 		dbPass = os.Getenv("DBPASS1")
 		dbPort = os.Getenv("DBPORT1")
 		dbSchema = os.Getenv("DBSCHEMA1")
-		if IsProduction == 1 {
+		if IsProduction {
 			dbURL = os.Getenv("DBURL1prodc")
 		} else {
 			dbURL = os.Getenv("DBURL1local")
@@ -215,7 +206,8 @@ func doReadRow(stmtIn string, returnSize int, inputType string,
 	if isEnvOk != "ok" {
 		pExitErr("isEnvOk:"+isEnvOk, nil)
 	}
-	db, err := dbConn(DatabaseID)
+
+	db, err := dbConn()
 	if err != nil {
 		pExitErr("err@dbConn()", err)
 	}
@@ -280,7 +272,7 @@ func readTableXrow(db *sql.DB, stmtIn string, queryValue string) (TableNameX, er
 	print("row:", row)
 
 	item := TableNameX{}
-	err = row.Scan(&item.ID, &item.MailAddress)
+	err = row.Scan(&item.ID, &item.EthereumAddr)
 	dump(item)
 
 	if err != nil {
@@ -294,6 +286,52 @@ func readTableXrow(db *sql.DB, stmtIn string, queryValue string) (TableNameX, er
 	}
 	return item, err
 }
+
+// readRewards ...
+/*@brief to find verification rows
+@param out: row data
+@param  in: execution sql statement, search condition
+*/
+func readRewards(db *sql.DB, stmtIn string, args ...interface{}) ([]Reward, error) {
+	print("-----------== readRewards()")
+	items := make([]Reward, 0)
+	stmt, err := db.Prepare(stmtIn)
+	if err != nil {
+		print("err@ db.Prepare(), err:", err)
+		return items, err
+	}
+	print("check1")
+
+	rows, err := stmt.Query(args...)
+	if err == sql.ErrNoRows {
+		print("no row is found:")
+		return items, nil
+	} else if err != nil {
+		print("err@ stmt.Query():", err)
+		return items, err
+	}
+	print("rows:", rows)
+	if rows == nil {
+		return items, nil
+	}
+
+	for rows.Next() {
+		item := Reward{}
+		err = rows.Scan(&item.ID, &item.UserID, &item.VaultID, &item.Reward, &item.UpdatedAt)
+		if err != nil {
+			print("err@ rows.Scan():", err)
+			return items, err
+		}
+		items = append(items, item)
+	}
+
+	err = stmt.Close()
+	if err != nil {
+		print("err@ stmt.Close(), err:", err)
+		return items, err
+	}
+	return items, nil
+} // &item.EthereumAddr,
 
 /*@brief to write data into db
 @param nullStrSlice: string, error
@@ -348,7 +386,7 @@ func testDB() {
 	}
 	print("check1 loadEnv is ok")
 
-	db, err := dbConn(DatabaseID)
+	db, err := dbConn()
 	if err != nil {
 		print("err@dbConn():", err)
 	}
@@ -394,7 +432,7 @@ func addRowDB(inputLambda InputLambda) (*OutputLambda, error) {
 	}
 	print("check1 loadEnv is ok")
 
-	db, err := dbConn(DatabaseID)
+	db, err := dbConn()
 	if err != nil {
 		print("err@dbConn():", err)
 		return &OutputLambda{
