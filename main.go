@@ -64,9 +64,9 @@ func main() {
 
 	router.HandleFunc("/vaultethaddr", httpVaultEthAddrR).Methods("GET")
 
-	router.HandleFunc("/apy", httpApyC).Methods("POST")
-	router.HandleFunc("/apyreset", httpApyReset).Methods("PUT")
-	router.HandleFunc("/apys", httpApysU).Methods("PUT")
+	router.HandleFunc("/vaults/apy", httpApyC).Methods("POST")
+	router.HandleFunc("/vaults/apyreset", httpApyReset).Methods("PUT")
+	router.HandleFunc("/vaults/apy", httpApyU).Methods("PUT")
 	//router.HandleFunc("/httpApyD", httpRowD).Methods("DELETE")
 
 	router.HandleFunc("/vaults/apy", httpApyR).Methods("GET")
@@ -96,27 +96,16 @@ func main() {
 /*
 https://stats.finance/robots.txt ... ok
 
-//--------------------==
-Read:
-curl 'localhost:3000/vaults/apy'
-curl 'localhost:3000/ping'
-curl 'localhost:3000'
+//--------------------== APY
+ApyC
+curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/vaults/apy' | jq
 
-//---------- AnChain
-curl 'localhost:3000/anChain'
+ApyR
+curl 'localhost:3000/vaults/apy' | jq
 
-//---------- VaultEthAddr
-VaultEthAddr R
-curl 'localhost:3000/vaultethaddr?userID=1&vaultID=1' | jq
+ApyU
+curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/vaults/apy' | jq
 
--H "Content-type: application/json"
-
-
-
-Users Add
-curl -XPOST -d ' {"ethereumAddrs":["0xD118CDb869B4DA6cE2bb5c47306789eA0f5A0024","0x8Db1535f716e9cA763bFaad5896c237c2c83449c","0xB197Fe6a0031b476B7b045a628A9Ce2421fa1D2E"]}' 'localhost:3000/users' | jq
-
--H "Content-type: application/json" 
 
 Write
 curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/httpWriteRow'
@@ -125,6 +114,23 @@ Fetch+Update
 curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/update'
 
 //--------------------==
+curl 'localhost:3000/ping'
+curl 'localhost:3000'
+curl 'localhost:3000/anChain'
+
+//---------- VaultEthAddr
+VaultEthAddr R
+curl 'localhost:3000/vaultethaddr?userID=1&vaultID=1' | jq
+
+-H "Content-type: application/json"
+
+UsersC
+curl -XPOST -d ' {"ethereumAddrs":["0xD118CDb869B4DA6cE2bb5c47306789eA0f5A0024","0x8Db1535f716e9cA763bFaad5896c237c2c83449c","0xB197Fe6a0031b476B7b045a628A9Ce2421fa1D2E"]}' 'localhost:3000/users' | jq
+
+-H "Content-type: application/json" 
+
+
+//--------------------== Deployed Domain
 https://api.aries.financial/vaults/apy
 https://api.aries.financial/
 https://api.aries.financial/ping

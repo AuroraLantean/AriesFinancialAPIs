@@ -110,13 +110,13 @@ curl -XPOST -d ' {"ethereumAddrs":["ethAddr1","ethAddr2","ethAddr3"]}' 'localhos
 
 ## Test Locally on data fetching APIs from source to DB
 Read APYs from database: <br>
-$ curl -v 'localhost:3000/vaults/apy'
+$ curl -v 'localhost:3000/vaults/apy' | jq
 
 Fetch data from source then update APYs in the database: <br>
-$ curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/update'
+$ curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/vaults/apy' | jq
 
 Write fixed data into database: <br>
-$ curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/httpWriteRow'
+$ curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/httpApyReset'
 
 Test server and database connection: <br>
 $ curl 'localhost:3000/ping'

@@ -74,8 +74,8 @@ func UsersC(inputLambda InputLambda) (*OutputLambda, error) {
 
 	//-----------------== Security
 	/*
-		routineOutPtr, err := SendSmsByEVERY8D(rawBody.CountryCode, phoneNum1, msg)
-		Log1("SendSmsByEVERY8D() result:", routineOutPtr, err)
+		routineOutPtr, err := SendSMS(rawBody.CountryCode, phoneNum1, msg)
+		Log1("SendSMS() result:", routineOutPtr, err)
 		outCode := (*routineOutPtr).Code
 		if err != nil || outCode != "0" {
 			Log1("err@ Sending SMS failed:", err)

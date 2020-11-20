@@ -8,7 +8,7 @@ see apysUpdate function description below
 @date   2020-11-11
 */
 func apysUpdate(inputLambda InputLambda) (*OutputLambda, error) {
-	print("-----------== updateLambda()")
+	print("-----------== apysUpdate()")
 	dump(inputLambda)
 	perfPeriod := inputLambda.Body.PerfPeriod
 	dataName := inputLambda.DataName
@@ -93,7 +93,7 @@ func apysUpdate(inputLambda InputLambda) (*OutputLambda, error) {
 
 	print("\ndb writing is successful")
 	return &OutputLambda{
-		Code: "000000",
+		Code: "0",
 		Mesg: "ok",
 		Data: updatedRow,
 	}, nil
