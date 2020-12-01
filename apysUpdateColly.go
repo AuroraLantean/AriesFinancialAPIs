@@ -1,14 +1,14 @@
 package main
 
-/*@file apysScrapeUpdate.go
-@brief apysScrapeUpdate API
-see apysScrapeUpdate function description below
+/*@file apysUpdateColly.go
+@brief apysUpdateColly API
+see apysUpdateColly function description below
 
 @author
 @date   2020-11-11
 */
-func apysScrapeUpdate(inputLambda InputLambda) (*OutputLambda, error) {
-	print("-----------== apysScrapeUpdate()")
+func apysUpdateColly(inputLambda InputLambda) (*OutputLambda, error) {
+	print("-----------== apysUpdateColly()")
 	dump("inputLambda.Body:", inputLambda.Body)
 	reqBody := inputLambda.Body
 	sourceURL := reqBody.SourceURL
@@ -20,6 +20,7 @@ func apysScrapeUpdate(inputLambda InputLambda) (*OutputLambda, error) {
 	switch {
 	case sourceURL == "https://stats.finance/yearn":
 		htmlPattern = ".MuiTable-root tbody tr"
+		//<tbody class="MuiTobalBody-root"><tbody><tr ...>
 		regexpStr = `/\s([^}]*)\%`
 		dataName = "yearnFinance"
 	default:
@@ -33,27 +34,19 @@ func apysScrapeUpdate(inputLambda InputLambda) (*OutputLambda, error) {
 
 	print("visiting", sourceURL)
 
+	var err error
 	var ss []string
 	if IsToScrape {
-		ss1, err := collyScraper(sourceURL, htmlPattern)
-		if err != nil {
-			print("err@ collyScraper:", err)
-			return &OutputLambda{
-				Code: "000104",
-				Mesg: "err@ collyScraper",
-			}, nil
-		}
-		ss = ss1
+		ss, err = collyScraper(sourceURL, htmlPattern)
 	} else {
-		ss2, err := collyScraperFakeYFI1()
-		if err != nil {
-			print("err@ collyScraper:", err)
-			return &OutputLambda{
-				Code: "000104",
-				Mesg: "err@ collyScraper",
-			}, nil
-		}
-		ss = ss2
+		ss, err = collyScraperFakeYFI1()
+	}
+	if err != nil {
+		print("err@ collyScraper:", err)
+		return &OutputLambda{
+			Code: "000104",
+			Mesg: "err@ collyScraper",
+		}, nil
 	}
 
 	//dump(ss)
@@ -111,6 +104,6 @@ func apysScrapeUpdate(inputLambda InputLambda) (*OutputLambda, error) {
 	inputLambda2 := InputLambda{Body: reqBody, DataName: dataName, APYboWeek: apys}
 	outputLambdaPt, err := apysUpdate(inputLambda2)
 
-	print("\napysScrapeUpdate is successful")
+	print("\napysUpdateColly is successful")
 	return outputLambdaPt, err
 }

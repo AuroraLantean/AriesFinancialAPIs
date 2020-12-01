@@ -27,7 +27,7 @@ func httpApyU(w http.ResponseWriter, r *http.Request) {
 	}
 	print("reqBody:", reqBody)
 	inputLambda := InputLambda{Body: reqBody}
-	outputLambdaPt, err := apysScrapeUpdate(inputLambda)
+	outputLambdaPt, err := apysUpdateColly(inputLambda)
 	print("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
 		print("\n====>>>> err@ writeRowX")
@@ -46,6 +46,55 @@ func httpApyU(w http.ResponseWriter, r *http.Request) {
 	// 	print("err:", err)
 	// }
 	//w.Write(b)
+}
+
+// httpAriesU ...
+func httpAriesU(w http.ResponseWriter, r *http.Request) {
+	print("---------------== httpAriesU")
+	var reqBody ReqBody
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		print("json decode err:", err)
+		return
+	}
+	print("reqBody:", reqBody)
+	inputLambda := InputLambda{Body: reqBody}
+	outputLambdaPt, err := ariesU(inputLambda)
+	print("result:", outputLambdaPt)
+	if err != nil || outputLambdaPt.Mesg != "ok" {
+		print("\n====>>>> err@ writeRowX")
+	}
+
+	print("IsToScrape:", IsToScrape)
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(*outputLambdaPt)
+	if err != nil {
+		print("Error @ json.NewEncoder:", err)
+	}
+}
+
+// httpAriesR ...
+func httpAriesR(w http.ResponseWriter, r *http.Request) {
+	print("---------------== httpAriesR")
+	token0 := r.URL.Query().Get("token0")
+	token1 := r.URL.Query().Get("token1")
+	sourceName := r.URL.Query().Get("sourceName")
+	reqBody := ReqBody{Token0: token0, Token1: token1, SourceName: sourceName}
+	print("over to lambda function")
+	print("reqBody:", reqBody)
+	inputLambda := InputLambda{Body: reqBody}
+	outputLambdaPt, err := tokenDataByChromedpR(inputLambda)
+	print("result:", outputLambdaPt)
+	if err != nil || outputLambdaPt.Mesg != "ok" {
+		print("\n====>>>> err@ writeRowX")
+	}
+
+	print("IsToScrape:", IsToScrape)
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(*outputLambdaPt)
+	if err != nil {
+		print("Error @ json.NewEncoder:", err)
+	}
 }
 
 /*

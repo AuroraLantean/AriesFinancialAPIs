@@ -8,8 +8,11 @@ see SendVerifCode function description below
 @date
 */
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,6 +21,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/dlclark/regexp2"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/joho/godotenv"
@@ -30,7 +35,17 @@ import (
 var print = fmt.Println
 
 // logFatal ... to print logs
-var logFatal = log.Fatal
+func logFatal(err error){
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func logErr(str string, err error){
+	if err != nil {
+		log.Println(str, err)
+	}
+}
 
 // dump ... to print structs
 var dump = spew.Dump
@@ -43,6 +58,23 @@ func loadEnv() string {
 		return "cannot load env file"
 	}
 	return "ok"
+}
+
+func respondWithError(w http.ResponseWriter, status int, err Error) {
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(err)
+}
+
+func respondWithJSON(w http.ResponseWriter, data interface{}) {
+	err := json.NewEncoder(w).Encode(data)
+	logErr("Error @ RespondWithJSON: ", err)
+}
+
+func writeHTML(content string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		io.WriteString(w, strings.TrimSpace(content))
+	})
 }
 
 // GetLocalTime ...
@@ -122,15 +154,21 @@ func ExecuteRoutine(routineInputs RoutineInputs) (*RoutineOut, error) {
 	dump("routineInputs:", routineInputs)
 	routineName := routineInputs.RoutineName
 	routineAddr := routineInputs.Address
+	bodyStr := routineInputs.Body
 	method := routineInputs.Method
 	timeout := routineInputs.Timeout
 
 	ch1 := make(chan *RoutineOut)
 	switch {
-	case routineName == "MakeGetRequest":
-		go MakeGetRequest(ch1, routineAddr)
+	case routineName == "MakeHTTPGET":
+		go MakeHTTPGET(ch1, routineAddr)
 	case routineName == "MakeHTTPRequest":
 		go MakeHTTPRequest(ch1, routineAddr, method)
+	case routineName == "MakeHTTPPOST":
+		go MakeHTTPPOST(ch1, routineAddr, bodyStr)
+	case routineName == "MakeGraphqlRequest":
+		go MakeGraphqlRequest(ch1, routineAddr, bodyStr)
+
 	default:
 		print("routineName has no match!")
 		return &RoutineOut{"110030", "function input not valid",
@@ -148,6 +186,132 @@ func ExecuteRoutine(routineInputs RoutineInputs) (*RoutineOut, error) {
 		print("Success. CallGoroutine() channel value has been returned")
 	}
 	return RoutineOutPtr, nil
+}
+
+// MakeGraphqlRequest ...
+func MakeGraphqlRequest(ch1 chan *RoutineOut,
+	requestURL string, bodyStr string) {
+	print("----------== MakeGraphqlRequest")
+	dump(requestURL, bodyStr)
+	//requestBody := strings.NewReader(bodyStr)
+	jsonData := map[string]string{
+		"query": bodyStr}
+
+	/*
+		jsonData := map[string]string{
+			"query": `{	pair(id: "0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891") {
+				token0 {
+					id
+					symbol
+					derivedETH
+				}
+				token1 {
+					id
+					symbol
+					derivedETH
+				}
+				token0Price
+				token1Price
+			}
+			}`,
+		}*/
+	jsonValue, _ := json.Marshal(jsonData)
+	request, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(jsonValue))
+	client := &http.Client{Timeout: time.Second * 10}
+	resp, err := client.Do(request)
+
+	if err != nil {
+		print("http.Post():", err)
+		ch1 <- &RoutineOut{"110023", "er@ http.Post()", "NA"}
+	}
+	if resp == nil || resp.Body == nil {
+		print("err@ resp or resp.Body is niil:", resp)
+		ch1 <- &RoutineOut{"110035", "HTTP response is nil or its body is nil", "NA"}
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		print("err@ reading response error: ioutil.ReadAll:", err)
+		ch1 <- &RoutineOut{"110031", "reading response error", "NA"}
+	}
+	respStr := string(respBody)
+	print("\nrespStr:", respStr)
+
+	err = resp.Body.Close()
+	if err != nil {
+		print("response close resp.Body.Close():", err)
+		ch1 <- &RoutineOut{"110032", "err@ resp.Body.Close()",
+			respStr}
+	}
+	print("successful@ MakeGraphqlRequest")
+	ch1 <- &RoutineOut{"0", "ok", respBody}
+}
+
+// MakeHTTPPOST ...
+func MakeHTTPPOST(ch1 chan *RoutineOut,
+	requestURL string, bodyStr string) {
+	print("----------== MakeHTTPPOST")
+	dump(requestURL, bodyStr)
+	//requestBody := strings.NewReader(bodyStr)
+
+	requestBody := strings.NewReader(`{	pair(id: "0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891") {
+			token0 {
+				id
+				symbol
+				derivedETH
+			}
+			token1 {
+				id
+				symbol
+				derivedETH
+			}
+			token0Price
+			token1Price
+		}
+		}`)
+	print("requestBody:", requestBody)
+	resp, err := http.Post(
+		requestURL,
+		"application/json; charset=UTF-8",
+		requestBody,
+	)
+
+	if err != nil {
+		print("http.Post():", err)
+		ch1 <- &RoutineOut{"110023", "er@ http.Post()", "NA"}
+	}
+	if resp == nil || resp.Body == nil {
+		print("err@ resp or resp.Body is niil:", resp)
+		ch1 <- &RoutineOut{"110035", "HTTP response is nil or its body is nil", "NA"}
+	}
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		print("err@ reading response error: ioutil.ReadAll:", err)
+		ch1 <- &RoutineOut{"110031", "reading response error", "NA"}
+	}
+	respStr := string(respBody)
+	print("\nrespStr:", respStr)
+
+	/*
+		items := strings.Split(respStr, ",")
+		if len(items) < 1 {
+			print("err@ response length not valid")
+			ch1 <- &RoutineOut{"110033", "response length not valid", respStr}
+		}
+		balance := toFloat(items[0])
+		if balance < 0 {
+			print("failed")
+			ch1 <- &RoutineOut{"110034", "failed", respStr}
+		}
+	*/
+
+	err = resp.Body.Close()
+	if err != nil {
+		print("response close resp.Body.Close():", err)
+		ch1 <- &RoutineOut{"110032", "err@ resp.Body.Close()",
+			respStr}
+	}
+	print("successful@ MakeHTTPPOST")
+	ch1 <- &RoutineOut{"0", "ok", respBody}
 }
 
 // MakeHTTPRequest ...
@@ -238,10 +402,10 @@ func toFloat(s string) float64 {
 	return f
 }
 
-// MakeGetRequest ...
-func MakeGetRequest(ch1 chan *RoutineOut,
+// MakeHTTPGET ...
+func MakeHTTPGET(ch1 chan *RoutineOut,
 	requestURL string) {
-	print("----------== MakeGetRequest")
+	print("----------== MakeHTTPGET")
 	dump(requestURL)
 	resp, err := http.Get(requestURL)
 	if err != nil {
@@ -278,6 +442,47 @@ func MakeGetRequest(ch1 chan *RoutineOut,
 	}
 	print("successful")
 	ch1 <- &RoutineOut{"0", "OK", respStr}
+}
+
+func regexp2FindInBtw(inputStr string, pattern string) (string, error) {
+	var strOut string
+	re := regexp2.MustCompile(pattern, 0)
+	isMatch, err := re.MatchString(inputStr)
+	if re.MatchTimeout*time.Second > 3 {
+		return strOut, errors.New("err@ re.MatchTimeout")
+	}
+	if err != nil {
+		return strOut, errors.New("err@ re.MatchString")
+	}
+	fmt.Println("isMatch:", isMatch)
+	if isMatch {
+		if m, err := re.FindStringMatch(inputStr); m != nil {
+			if err != nil {
+				return strOut, errors.New("err@ re.FindStringMatch")
+			}
+			// the whole match is always group 0
+			strOut = m.String()
+			fmt.Printf("Group 0: %v\n", "=="+strOut+"==")
+			return strOut, nil
+			//return removeBothEnds(strOut), nil
+			// you can get all the groups too
+			// gps := m.Groups()
+
+			// // a group can be captured multiple times, so each cap is separately addressable
+			// fmt.Println("Group 1, first capture", gps[1].Captures[0].String())
+			// fmt.Println("Group 1, second capture", gps[1].Captures[1].String())
+		}
+	}
+	return strOut, nil
+}
+
+func removeBothEnds(strIn string) string {
+	if len(strIn) < 4 {
+		return ""
+	}
+	s1 := strIn[2:]
+	last := len(s1) - 1
+	return s1[:last]
 }
 
 // to check input for minimum length

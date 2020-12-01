@@ -1,11 +1,13 @@
 package main
 
 import (
-	"errors"
+	"context"
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
-	"github.com/dlclark/regexp2"
+	"github.com/chromedp/chromedp"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -14,7 +16,7 @@ import (
 @brief scraper API
 see scraper function description below
 
-@author 
+@author
 @date   2020-11-04
 */
 
@@ -118,42 +120,45 @@ func fetchCoinMarketCap() ([]byte, error) {
 	return b, err
 }*/
 
-func regexp2FindInBtw(target string, pattern string) (string, error) {
-	var strOut string
-	re := regexp2.MustCompile(pattern, 0)
-	isMatch, err := re.MatchString(target)
-	if re.MatchTimeout*time.Second > 3 {
-		return strOut, errors.New("err@ re.MatchTimeout")
-	}
-	if err != nil {
-		return strOut, errors.New("err@ re.MatchString")
-	}
-	fmt.Println("isMatch:", isMatch)
-	if isMatch {
-		if m, err := re.FindStringMatch(target); m != nil {
-			if err != nil {
-				return strOut, errors.New("err@ re.FindStringMatch")
-			}
-			// the whole match is always group 0
-			strOut = m.String()
-			fmt.Printf("Group 0: %v\n", "=="+strOut+"==")
-			return removeBothEnds(strOut), nil
-			// you can get all the groups too
-			// gps := m.Groups()
+func chromedpScraper(targetURL string, loadingTime int) ([]string, error) {
+	print("---------------== chromedpScraper()")
+	ctx, cancel := chromedp.NewContext(
+		context.Background(),
+		chromedp.WithLogf(log.Printf),
+	)
+	defer cancel()
 
-			// // a group can be captured multiple times, so each cap is separately addressable
-			// fmt.Println("Group 1, first capture", gps[1].Captures[0].String())
-			// fmt.Println("Group 1, second capture", gps[1].Captures[1].String())
-		}
+	ctx, cancel = context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+
+	var text1, text2 string
+	print("run chromedp")
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(targetURL),
+		// wait for element is visible(loaded)
+		chromedp.WaitVisible(`body > #root`),
+		chromedp.ActionFunc(func(context.Context) error {
+			print("waiting x seconds...")
+			return nil
+		}),
+		chromedp.Sleep(time.Duration(loadingTime)*time.Second),
+		//chromedp.OuterHTML(`#center .sc-bdVaJa.KpMoH.css-9on69b`, &outerHTML1),
+		chromedp.Text(`#center .sc-bdVaJa.KpMoH.css-9on69b`, &text1),
+		chromedp.Text(`#center .sc-bdVaJa.KpMoH.css-flugrv`, &text2),
+	)
+	/*chrome browser: copy selector
+	#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-eTuwsz.bFSUTM > div:nth-child(1) > div > div.sc-ifAKCX.sc-bZQynM.sc-gzVnrw.hatkAI > div.sc-bdVaJa.KpMoH.css-9on69b
+
+	#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-ifAKCX.sc-bZQynM.sc-dnqmqq.feLJDb > div:nth-child(1) > div > div.sc-bdVaJa.KpMoH.css-flugrv
+	*/
+	print("text1:", text1, ", text2:", text2)
+	if len(text2) > 2 {
+		text2 = strings.TrimSpace(text2)[2:]
 	}
-	return strOut, nil
+	return []string{strings.TrimSpace(text1), text2}, err
 }
 
-func removeBothEnds(strIn string) string {
-	if len(strIn) < 4 {
-		return ""
-	}
-	s1 := strIn[2:]
-	last := len(s1) - 1
-	return s1[:last]
+func chromedpScraperFake(targetURL string, loadingTime int) ([]string, error) {
+	print("---------------== chromedpScraperFake()")
+	return []string{"$10.37", "AFI = 33.00001 USDC"}, nil
 }

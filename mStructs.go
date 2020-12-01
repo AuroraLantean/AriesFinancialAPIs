@@ -148,6 +148,9 @@ type ReqBody struct {
 	EthereumAddrs []string `json:"ethereumAddrs"`
 	Offset        string   `json:"offset"`
 	Amount        string   `json:"amount"`
+	SourceName    string   `json:"sourceName"`
+	Token0        string   `json:"token0"`
+	Token1        string   `json:"token1"`
 }
 
 // HTPMPattern string `json:"htmlPattern"`
@@ -225,6 +228,7 @@ type RespVaultEthAddrR struct {
 type RoutineInputs struct {
 	RoutineName string `json:"routineName"`
 	Address     string `json:"requestAddr"`
+	Body        string `json:"body"`
 	Method      string `json:"method"`
 	Timeout     int    `json:"timeout"`
 }
@@ -241,6 +245,62 @@ type AnChainOut struct {
 	Data   map[string]AnChainData `json:"data"`
 	ErrMsg string                 `json:"err_msg"`
 	Status int                    `json:"status"`
+}
+
+// GraphqlOut ...
+type GraphqlOut struct {
+	Data   UniSwapData  `json:"data"`
+	Errors []GraphqlErr `json:"errors"`
+}
+
+// GraphqlErr ...
+type GraphqlErr struct {
+	Locations []LineColumn `json:"locations"`
+	Message   string       `json:"message"`
+}
+
+// LineColumn ...
+type LineColumn struct {
+	Line   int `json:"line"`
+	Column int `json:"column"`
+}
+
+// UniSwapToken ...
+type UniSwapToken struct {
+	ID                 string `json:"id"`
+	Symbol             string `json:"symbol"`
+	Name               string `json:"name"`
+	Decimals           string `json:"decimals"`
+	TotalSupply        string `json:"totalSupply"`
+	TradeVolume        string `json:"tradeVolume"`
+	TradeVolumeUSD     string `json:"tradeVolumeUSD"`
+	UntrackedVolumeUSD string `json:"untrackedVolumeUSD"`
+	TxCount            string `json:"txCount"`
+	TotalLiquidity     string `json:"totalLiquidity"`
+	DerivedETH         string `json:"derivedETH"`
+	MostLiquidPairs    string `json:"mostLiquidPairs"`
+}
+
+// UniSwapPair ...
+type UniSwapPair struct {
+	UniSwapToken0 UniSwapToken `json:"token0"`
+	Token0Price   string       `json:"token0Price"`
+	UniSwapToken1 UniSwapToken `json:"token1"`
+	Token1Price   string       `json:"token1Price"`
+}
+
+// PairData ...
+type PairData struct {
+	Price            float64 `json:"price"`
+	TotalLiquidity   float64 `json:"totalLiquidity"`
+	TotalValueLocked float64 `json:"totalValueLocked"`
+	WeeklyROI        float64 `json:"weeklyROI"`
+	APY              float64 `json:"apy"`
+}
+
+// UniSwapData ...
+type UniSwapData struct {
+	UniSwapPairData UniSwapPair `json:"pair"`
 }
 
 // AnChainData ...
@@ -281,4 +341,10 @@ type Risk struct {
 	Level       int `json:"level"`
 	Score       int `json:"score"`
 	VerdictTime int `json:"verdict_time"`
+}
+
+// Error ...
+type Error struct {
+	Message string `json:"message"`
+	MesgRaw string `json:"mesgraw"`
 }

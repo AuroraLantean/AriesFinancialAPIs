@@ -97,7 +97,7 @@ func CallAnChainAPI(choice int, proto string, bcAddr string) (*AnChainOut, strin
 	print("apiStr:", routineAddr)
 
 	routineInputs := RoutineInputs{routineName,
-		routineAddr, restType, timeoutSecs}
+		routineAddr, "", restType, timeoutSecs}
 	routineOutPtr, err := ExecuteRoutine(routineInputs)
 	//print("ExecuteRoutine result:", routineOutPtr)
 	print("err:", err)
@@ -126,9 +126,129 @@ func CallAnChainAPI(choice int, proto string, bcAddr string) (*AnChainOut, strin
 	// req.URL.RawQuery = q.Encode()
 
 	// print(req.URL.String())
-
 }
 
 /*
 
  */
+// DoCallGraphQLAPI ...
+/*@brief to call DoCallGraphQLAPI
+@param out: result and error message
+@param  in:
+*/
+func DoCallGraphQLAPI(dataName string, subgraphName string) (*GraphqlOut, string) {
+	print("-----------== DoCallGraphQLAPI()")
+
+	isEnvOk := loadEnv()
+	if isEnvOk != "ok" {
+		return nil, "err@ loadEnv"
+	}
+
+	var queryStr, targetURL, uniswapV2TokenID string
+	switch {
+	case dataName == "AFI":
+		uniswapV2TokenID = "0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
+	default:
+		print("dataName is invalid")
+		return nil, "invalid dataName"
+	}
+	print("uniswapV2TokenID:", uniswapV2TokenID)
+	// ` + uniswapV2TokenID + `
+
+	switch {
+	case subgraphName == "uniswapV2":
+		targetURL = os.Getenv("UNISWAPV2")
+
+		//queryStr = "xyz"
+		queryStr = `{	pair(id: "0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891") {
+			token0 {
+				id
+				name
+				symbol
+				decimals
+				totalSupply
+				tradeVolume
+				tradeVolumeUSD
+				untrackedVolumeUSD
+				derivedETH
+				tradeVolumeUSD
+				totalLiquidity
+			}
+			token1 {
+				id
+				name
+				symbol
+				decimals
+				totalSupply
+				tradeVolume
+				tradeVolumeUSD
+				derivedETH
+				tradeVolumeUSD
+				untrackedVolumeUSD
+				totalLiquidity
+			}
+			token0Price
+			token1Price
+		}
+		}`
+
+	default:
+		print("subgraphName is invalid")
+		return nil, "invalid subgraphName"
+	}
+
+	print("targetURL:", targetURL, "\nqueryStr:", queryStr)
+	if targetURL == "" {
+		return nil, "targetURL is empty"
+	}
+	if queryStr == "" {
+		return nil, "queryStr is empty"
+	}
+	graphqlOutPt, msg, err := CallGraphQLAPI(queryStr, targetURL)
+	if msg != "ok" || err != nil {
+		print("msg:", msg, ". err:", err)
+		return nil, "msg or err exists"
+	}
+	dump(graphqlOutPt)
+	graphqlOut := *graphqlOutPt
+	msgOut := ""
+	if len(graphqlOut.Errors) > 0 && graphqlOut.Errors[0].Message != "" {
+		msgOut = "Graphql query failed: " + graphqlOut.Errors[0].Message
+		print(msgOut)
+		return nil, msgOut
+	}
+	return graphqlOutPt, "ok"
+}
+
+// CallGraphQLAPI ...
+/*@brief to call AnChain APIs
+@param out: result and error message
+@param  in:
+*/
+func CallGraphQLAPI(queryStr string, targetURL string) (*GraphqlOut, string, error) {
+	print("-----------== CallGraphQLAPI()")
+	GraphqlOut := GraphqlOut{}
+	routineName := "MakeGraphqlRequest" //"MakeGetRequest"
+	routineAddr := targetURL
+	timeoutSecs := 3
+
+	//endpoint1 := url.QueryEscape(endpoint)
+
+	routineInputs := RoutineInputs{routineName,
+		routineAddr, queryStr, "", timeoutSecs}
+	routineOutPtr, err := ExecuteRoutine(routineInputs)
+	//print("ExecuteRoutine result:", routineOutPtr)
+	print("err:", err)
+
+	byteSlice, ok := ((*routineOutPtr).RespRoutine).([]byte)
+	if !ok {
+		print("err@ RespRoutine not of []byte")
+		return &GraphqlOut, "RespRoutine not of []byte", nil
+	}
+
+	err = json.Unmarshal(byteSlice, &GraphqlOut)
+	if err != nil {
+		print("err@ json.Unmarshal()", err)
+	}
+	return &GraphqlOut, "ok", nil
+}

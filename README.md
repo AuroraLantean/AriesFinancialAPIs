@@ -57,7 +57,7 @@ $ ./main
 ## Test Locally on User Table APIs
 if using the 2016 DAO hacker address with bad score: "0x304a554a310c7e546dfe434669c62820b7d83490", any API below should return error
 
-------------== UserC ... Add User<br>
+------------== UserC ... Create User<br>
 curl -XPOST -d '{"ethereumAddr":"your_eth_address"}' 'localhost:3000/user' | jq
 
 curl -XPOST -d '{"ethereumAddr":"0x304a554a310c7e546dfe434669c62820b7d83490"}' 'localhost:3000/user' | jq
@@ -80,11 +80,11 @@ curl -XDELETE -d '{"ethereumAddr":"your_eth_address"}' 'localhost:3000/user' | j
 
 curl -XDELETE -d '{"userID":"5"}' 'localhost:3000/user' | jq
 
-------------== UsersC ... Add Multiple Users<br>
+------------== UsersC ... Create Multiple Users<br>
 curl -XPOST -d ' {"ethereumAddrs":["addr1","addr2","addr3"]}' 'localhost:3000/users' | jq
 
 ## Test Locally on Reward Table APIs
-------------== Reward C ... Add Reward<br>
+------------== Reward C ... Create Reward<br>
 curl -XPOST -d '{"userID":"6","vaultID":"1","reward":"3.33"}' 'localhost:3000/reward' | jq
 
 ------------== Reward R ... Read Reward<br>
