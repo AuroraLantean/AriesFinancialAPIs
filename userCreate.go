@@ -1,8 +1,8 @@
 package main
 
-/*@file UserC.go
-@brief UserC API
-see UserC function description below
+/*@file CreateUser.go
+@brief CreateUser API
+see CreateUser function description below
 
 @author
 @date   2020-11-11
@@ -11,9 +11,9 @@ import (
 	"database/sql"
 )
 
-// UserC ...
-func UserC(inputLambda InputLambda) (*OutputLambda, error) {
-	print("---------------== UserC")
+// CreateUser ...
+func CreateUser(inputLambda InputLambda) (*OutputLambda, error) {
+	print("---------------== CreateUser")
 	dump("inputLambda.Body:", inputLambda.Body)
 	reqBody := inputLambda.Body
 
@@ -194,7 +194,7 @@ func UserC(inputLambda InputLambda) (*OutputLambda, error) {
 }
 
 /*
-UserC
-curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' 'localhost:3000/UserC' | jq
+CreateUser
+curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' 'localhost:3000/user' | jq
 
 */

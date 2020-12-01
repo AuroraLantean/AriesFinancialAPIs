@@ -57,66 +57,46 @@ $ ./main
 ## Test Locally on User Table APIs
 if using the 2016 DAO hacker address with bad score: "0x304a554a310c7e546dfe434669c62820b7d83490", any API below should return error
 
-------------== UserC ... Create User<br>
-curl -XPOST -d '{"ethereumAddr":"your_eth_address"}' 'localhost:3000/user' | jq
+------------== Create User<br>
+request type: POST, endpoint: /member <br>
+request body: {"ethereumAddr":"your_eth_address"}<br>
 
-curl -XPOST -d '{"ethereumAddr":"0x304a554a310c7e546dfe434669c62820b7d83490"}' 'localhost:3000/user' | jq
+------------== Read User<br>
+request type: GET, endpoint: /member<br>
+request params: userID or ethAddress<br>
 
-------------== UserR ... Read User<br>
-Use either userID or ethAdress as param<br>
-curl 'localhost:3000/user?userID=4' | jq
+/member?ethAddress=your_eth_address<br>
+/member?userID=4<br>
 
-curl 'localhost:3000/user?ethAddress=your_eth_address' | jq
+------------== Update User<br>
+request type: PUT, endpoint: /member <br>
+request body: Use either userID or ethAdress<br>
 
-------------== UserU ... Update User<br>
-Use either userID or ethAdress as param<br>
-curl -XPUT -d '{"ethereumAddr":"your_eth_address","reward":"3.24"}' 'localhost:3000/user' | jq
+{"ethereumAddr":"your_eth_address","reward":"3.24"}<br>
+{"ethereumAddr":"0x304a554a310c7e546dfe434669c62820b7d83490","reward":"3.24"}<br>
 
-curl -XPUT -d '{"ethereumAddr":"0x304a554a310c7e546dfe434669c62820b7d83490","reward":"3.24"}' 'localhost:3000/user' | jq
+------------== Delete User<br>
+request type: DELETE, endpoint: /member <br>
+request body: Use either userID or ethAdress<br>
 
-------------== UserD ... Delete User<br>
-Use either userID or ethAdress as param<br>
-curl -XDELETE -d '{"ethereumAddr":"your_eth_address"}' 'localhost:3000/user' | jq
+{"ethereumAddr":"your_eth_address"}<br>
+{"userID":"5"}<br>
 
-curl -XDELETE -d '{"userID":"5"}' 'localhost:3000/user' | jq
-
-------------== UsersC ... Create Multiple Users<br>
-curl -XPOST -d ' {"ethereumAddrs":["addr1","addr2","addr3"]}' 'localhost:3000/users' | jq
-
-## Test Locally on Reward Table APIs
-------------== Reward C ... Create Reward<br>
-curl -XPOST -d '{"userID":"6","vaultID":"1","reward":"3.33"}' 'localhost:3000/reward' | jq
-
-------------== Reward R ... Read Reward<br>
+------------== Read Reward<br>
 Use either rewardID or (userID and vaultID) as param<br>
 curl 'localhost:3000/reward?userID=6&vaultID=1' | jq
 
 curl 'localhost:3000/reward?rewardID=11' | jq
 
-------------== Reward D ... Delete Reward<br>
+------------== Delete Reward<br>
 Use either rewardID or (userID and vaultID) as param<br>
 curl -XDELETE -d '{"rewardID":"6"}' 'localhost:3000/reward' | jq
 
 curl -XDELETE -d '{"userID":"4","vaultID":"5"}' 'localhost:3000/reward' | jq
 
 
-## Test Locally on VaultEthAddr Table APIs
-------------== VaultEthAddr R ... Read VaultEthAddr<br>
-curl 'localhost:3000/vaultethaddr?userID=1&vaultID=1' | jq
-
-## Test Locally on Adding An User Array
-curl -XPOST -d ' {"ethereumAddrs":["ethAddr1","ethAddr2","ethAddr3"]}' 'localhost:3000/users' | jq
 
 
-## Test Locally on data fetching APIs from source to DB
-Read APYs from database: <br>
-$ curl -v 'localhost:3000/vaults/apy' | jq
-
-Fetch data from source then update APYs in the database: <br>
-$ curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/vaults/apy' | jq
-
-Write fixed data into database: <br>
-$ curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/httpApyReset'
 
 Test server and database connection: <br>
 $ curl 'localhost:3000/ping'

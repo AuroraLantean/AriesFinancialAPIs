@@ -1,8 +1,8 @@
 package main
 
-/*@file UserD.go
-@brief UserD API
-see UserD function description below
+/*@file DeleteUser.go
+@brief DeleteUser API
+see DeleteUser function description below
 
 @author
 @date   2020-11-11
@@ -11,9 +11,9 @@ import (
 	"database/sql"
 )
 
-// UserD ...
-func UserD(inputLambda InputLambda) (*OutputLambda, error) {
-	print("---------------== UserD")
+// DeleteUser ...
+func DeleteUser(inputLambda InputLambda) (*OutputLambda, error) {
+	print("---------------== DeleteUser")
 	dump("inputLambda.Body:", inputLambda.Body)
 	reqBody := inputLambda.Body
 
@@ -181,7 +181,7 @@ func UserD(inputLambda InputLambda) (*OutputLambda, error) {
 }
 
 /*
-UserD
-curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' 'localhost:3000/userdelete' | jq
+DeleteUser
+curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' 'localhost:3000/member' | jq
 
 */

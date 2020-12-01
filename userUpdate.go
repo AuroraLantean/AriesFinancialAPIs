@@ -1,8 +1,8 @@
 package main
 
-/*@file UserU.go
-@brief UserU API
-see UserU function description below
+/*@file UpdateUser.go
+@brief UpdateUser API
+see UpdateUser function description below
 
 @author
 @date   2020-11-11
@@ -11,9 +11,9 @@ import (
 	"database/sql"
 )
 
-// UserU ...
-func UserU(inputLambda InputLambda) (*OutputLambda, error) {
-	print("---------------== UserU")
+// UpdateUser ...
+func UpdateUser(inputLambda InputLambda) (*OutputLambda, error) {
+	print("---------------== UpdateUser")
 	dump("inputLambda.Body:", inputLambda.Body)
 	reqBody := inputLambda.Body
 
@@ -185,11 +185,11 @@ func UserU(inputLambda InputLambda) (*OutputLambda, error) {
 }
 
 /*
-UserU
-curl -XPOST -d ' {"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f","reward":"2.9","downlineIDs":""}' 'localhost:3000/userupdate' | jq
+UpdateUser
+curl -XPOST -d ' {"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f","reward":"2.9","downlineIDs":""}' 'localhost:3000/membership' | jq
 
-curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f","reward":"","downlineIDs":"3,4"}' 'localhost:3000/userupdate' | jq
+curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f","reward":"","downlineIDs":"3,4"}' 'localhost:3000/membership' | jq
 
-curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f","reward":"","uplineID":"7","downlineIDs":""}' 'localhost:3000/userupdate' | jq
+curl -XPOST -d '{"ethereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f","reward":"","uplineID":"7","downlineIDs":""}' 'localhost:3000/membership' | jq
 
 */

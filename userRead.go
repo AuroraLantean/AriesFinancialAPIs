@@ -1,8 +1,8 @@
 package main
 
-/*@file UserR.go
-@brief UserR API
-see UserR function description below
+/*@file ReadUser.go
+@brief ReadUser API
+see ReadUser function description below
 
 @author
 @date   2020-11-11
@@ -11,9 +11,9 @@ import (
 	"database/sql"
 )
 
-// UserR ...
-func UserR(inputLambda InputLambda) (*OutputLambda, error) {
-	print("---------------== UserR")
+// ReadUser ...
+func ReadUser(inputLambda InputLambda) (*OutputLambda, error) {
+	print("---------------== ReadUser")
 	dump("inputLambda.Body:", inputLambda.Body)
 	reqBody := inputLambda.Body
 

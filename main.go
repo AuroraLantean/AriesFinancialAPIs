@@ -51,27 +51,27 @@ func main() {
 
 	//-------------------== Routers
 	router := mux.NewRouter()
-	router.HandleFunc("/user", httpUserC).Methods("POST")
-	router.HandleFunc("/user", httpUserR).Methods("GET")
-	router.HandleFunc("/user", httpUserU).Methods("PUT")
-	router.HandleFunc("/user", httpUserD).Methods("DELETE")
+	router.HandleFunc("/member", httpCreateUser).Methods("POST")
+	router.HandleFunc("/member", httpReadUser).Methods("GET")
+	router.HandleFunc("/member", httpUpdateUser).Methods("PUT")
+	router.HandleFunc("/member", httpDeleteUser).Methods("DELETE")
 
-	router.HandleFunc("/users", httpUsersC).Methods("POST")
-	router.HandleFunc("/users", httpUsersR).Methods("GET")
+	// router.HandleFunc("/securities", httpCreateUsers).Methods("POST")
+	// router.HandleFunc("/securities", httpReadUsers).Methods("GET")
 
 	router.HandleFunc("/reward", httpRewardC).Methods("POST")
 	router.HandleFunc("/reward", httpRewardR).Methods("GET")
 	router.HandleFunc("/reward", httpRewardD).Methods("DELETE")
 
-	router.HandleFunc("/vaultethaddr", httpVaultEthAddrR).Methods("GET")
+	//router.HandleFunc("/vaultethaddr", httpVaultEthAddrR).Methods("GET")
 
-	router.HandleFunc("/vaults/apy", httpApyC).Methods("POST")
-	router.HandleFunc("/vaults/apy", httpApyR).Methods("GET")
-	router.HandleFunc("/vaults/apyreset", httpApyReset).Methods("PUT")
-	router.HandleFunc("/vaults/apy", httpApyU).Methods("PUT")
+	// router.HandleFunc("/aries10", httpApyC).Methods("POST")
+	// router.HandleFunc("/aries10", httpApyR).Methods("GET")
+	// router.HandleFunc("/aries10reset", httpApyReset).Methods("PUT")
+	// router.HandleFunc("/aries10", httpApyU).Methods("PUT")
 
-	router.HandleFunc("/aries", httpAriesR).Methods("GET")
-	router.HandleFunc("/aries", httpAriesU).Methods("PUT")
+	router.HandleFunc("/ariesapy", httpAriesR).Methods("GET")
+	router.HandleFunc("/ariesapy", httpAriesU).Methods("PUT")
 
 	router.HandleFunc("/ping", ping).Methods("GET")
 	router.HandleFunc("/", root).Methods("GET")
@@ -174,13 +174,13 @@ https://stats.finance/robots.txt ... ok
 
 //--------------------== APY
 ApyC
-curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/vaults/apy' | jq
+curl -XPOST -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/aries10' | jq
 
 ApyR
-curl 'localhost:3000/vaults/apy' | jq
+curl 'localhost:3000/aries10' | jq
 
 ApyU
-curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/vaults/apy' | jq
+curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/aries10' | jq
 
 
 Write
@@ -201,24 +201,25 @@ curl 'localhost:3000/vaultethaddr?userID=1&vaultID=1' | jq
 -H "Content-type: application/json"
 
 UsersC
-curl -XPOST -d ' {"ethereumAddrs":["0xD118CDb869B4DA6cE2bb5c47306789eA0f5A0024","0x8Db1535f716e9cA763bFaad5896c237c2c83449c","0xB197Fe6a0031b476B7b045a628A9Ce2421fa1D2E"]}' 'localhost:3000/users' | jq
+curl -XPOST -d ' {"ethereumAddrs":["0xD118CDb869B4DA6cE2bb5c47306789eA0f5A0024","0x8Db1535f716e9cA763bFaad5896c237c2c83449c","0xB197Fe6a0031b476B7b045a628A9Ce2421fa1D2E"]}' 'localhost:3000/securities' | jq
 
 -H "Content-type: application/json"
 
 
 //--------------------== Deployed Domain
-https://api.aries.financial/vaults/apy
+https://api.aries.financial/aries10 ... done by 0x48
+
 https://api.aries.financial/
 https://api.aries.financial/ping
 
 //--------------------== future use
 Read:
-curl -v 'https://api.aries.financial/vaults/apy?sourceURL=https://stats.finance/yearn&perfPeriod=week'
+curl -v 'https://api.aries.financial/aries1?sourceURL=https://stats.finance/yearn&perfPeriod=week'
 
-https://api.aries.financial/vaults/apy?sourceURL=https://stats.finance/yearn&perfPeriod=week
-http://localhost:3000/vaults/apy?sourceURL=https://stats.finance/yearn&perfPeriod=week
+https://api.aries.financial/aries2?sourceURL=https://stats.finance/yearn&perfPeriod=week
+http://localhost:3000/aries10?sourceURL=https://stats.finance/yearn&perfPeriod=week
 
-curl -v 'localhost:3000/vaults/apy?sourceURL=https://stats.finance/yearn&perfPeriod=week'
+curl -v 'localhost:3000/aries3?sourceURL=https://stats.finance/yearn&perfPeriod=week'
 
 
 * MIT License
