@@ -40,11 +40,7 @@ func ariesU(inputLambda InputLambda) (*OutputLambda, error) {
 
 	var err error
 	var ss []string
-	if IsToScrape {
-		ss, err = chromedpScraper(sourceURL, loadingTime)
-	} else {
-		ss, err = chromedpScraperFake(sourceURL, loadingTime)
-	}
+		ss, err = chromedpScraper(sourceURL, loadingTime, IsToScrape)
 	if err != nil {
 		print("err@ chromedpScraper:", err)
 		return &OutputLambda{

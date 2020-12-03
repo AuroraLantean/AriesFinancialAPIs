@@ -11,7 +11,13 @@ import (
 	"database/sql"
 )
 
-// DeleteUser ...
+/*DeleteUser ...
+User Delete Scenario - UpdateUser: 
+an existing user wants to delete his info in our User DB table.
+the API will check for this user's address via security function ->
+if this address is okay, then delete such user's info in our DB
+else if this address is a hacker or something like that, response is to reject this request.
+*/
 func DeleteUser(inputLambda InputLambda) (*OutputLambda, error) {
 	print("---------------== DeleteUser")
 	dump("inputLambda.Body:", inputLambda.Body)

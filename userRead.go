@@ -11,7 +11,13 @@ import (
 	"database/sql"
 )
 
-// ReadUser ...
+/*ReadUser ...
+User Read Scenario - ReadUser: 
+an existing user wants to read his info in our User DB table.
+the API will check for this user's address via security function ->
+if this address is okay, then fetch such user's info from our DB
+else if this address is a hacker or something like that, response is to reject this request. 
+*/
 func ReadUser(inputLambda InputLambda) (*OutputLambda, error) {
 	print("---------------== ReadUser")
 	dump("inputLambda.Body:", inputLambda.Body)

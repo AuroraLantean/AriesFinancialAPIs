@@ -15,6 +15,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"strconv"
@@ -35,13 +36,13 @@ import (
 var print = fmt.Println
 
 // logFatal ... to print logs
-func logFatal(err error){
+func logFatal(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func logErr(str string, err error){
+func logErr(str string, err error) {
 	if err != nil {
 		log.Println(str, err)
 	}
@@ -402,6 +403,22 @@ func toFloat(s string) float64 {
 	return f
 }
 
+func float64ToBigInt(val float64, mag int64) *big.Int {
+	vBF := new(big.Float)
+	vBF.SetFloat64(val)
+	// Set precision if required.
+	// vBF.SetPrec(64)
+
+	magBF := new(big.Float)
+	magBF.SetInt(big.NewInt(mag))
+
+	vBF.Mul(vBF, magBF)
+
+	result := new(big.Int)
+	vBF.Int(result) // store converted number in result
+	return result
+}
+
 // MakeHTTPGET ...
 func MakeHTTPGET(ch1 chan *RoutineOut,
 	requestURL string) {
@@ -442,6 +459,30 @@ func MakeHTTPGET(ch1 chan *RoutineOut,
 	}
 	print("successful")
 	ch1 <- &RoutineOut{"0", "OK", respStr}
+}
+
+func doregexp2FindInBtw(ss []string, regexpStr string) (PairData, error) {
+	pairData := PairData{}
+	for idx, v := range ss {
+		print("idx", idx, ":", v)
+		out, err := regexp2FindInBtw(v, regexpStr)
+		if err != nil {
+			print("err:", err)
+			return PairData{}, nil
+		}
+		print("out:", out)
+		switch {
+		case idx == 0:
+			pairData.TotalLiquidity = toFloat(out)
+		case idx == 1:
+			pairData.Price = toFloat(out)
+		default:
+			print("idx not needed")
+		}
+	}
+	print("\npairData:")
+	dump(pairData)
+	return pairData, nil
 }
 
 func regexp2FindInBtw(inputStr string, pattern string) (string, error) {

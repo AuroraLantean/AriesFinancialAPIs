@@ -2,6 +2,40 @@ package main
 
 import "database/sql"
 
+// RewardsPool ...
+type RewardsPool struct {
+	ID                   string `yaml:"id"`
+	Name                 string `yaml:"name"`
+	Network              string `yaml:"network"`
+	LpTokenCtrt          string `yaml:"lpToken"`
+	RwTokenCtrt          string `yaml:"rwToken"`
+	RewardsCtrt          string `yaml:"rewardsCtrt"`
+	LpTokenPriceSource   string `yaml:"lpTokenPriceSource"`
+	TotalLiquiditySource string `yaml:"totalLiquiditySource"`
+	LoadingTime          int    `yaml:"loadingTime"`
+	RwTokenPriceSorce    string `yaml:"rwTokenPriceSource"`
+}
+
+// Config ... configuration file
+type Config struct {
+	EthereumNetwork struct {
+		Name string `yaml:"name"`
+	} `yaml:"EthereumNetwork"`
+
+	RewardsPools []struct {
+		ID                   string `yaml:"id"`
+		Name                 string `yaml:"name"`
+		Network              string `yaml:"network"`
+		LpTokenCtrt          string `yaml:"lpToken"`
+		RwTokenCtrt          string `yaml:"rwToken"`
+		RewardsCtrt          string `yaml:"rewardsCtrt"`
+		LpTokenPriceSource   string `yaml:"lpTokenPriceSource"`
+		TotalLiquiditySource string `yaml:"totalLiquiditySource"`
+		LoadingTime          int    `yaml:"loadingTime"`
+		RwTokenPriceSorce    string `yaml:"rwTokenPriceSource"`
+	} `yaml:"RewardsPools"`
+}
+
 // APYs ... based on last week's performance
 type APYs struct {
 	ID         string `json:"id"`
@@ -151,6 +185,7 @@ type ReqBody struct {
 	SourceName    string   `json:"sourceName"`
 	Token0        string   `json:"token0"`
 	Token1        string   `json:"token1"`
+	RewardsPool   string   `json:"rewardsPool"`
 }
 
 // HTPMPattern string `json:"htmlPattern"`

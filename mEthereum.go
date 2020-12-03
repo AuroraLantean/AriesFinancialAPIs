@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"errors"
 	"math/big"
 	"os"
 
@@ -23,47 +23,51 @@ import (
 
 var rewardCtrtAddr string = "0xBF76248d5e3bfd1d4dDE4369Fe6163289A0267F6"
 
-func preEthereum() {
-	print("------------------== preEthereum")
+var n1 = big.NewInt(-1)
 
-	//------------------==get env and config files
+func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *big.Int, error) {
+	print("------------== getRewardsCtrtValues")
+	if addrRewardsPool == "" {
+		return n1, n1, errors.New("reward contract address is invalid")
+	}
+
+	print("gett env file")
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		print("err@ loading .env file.", err)
+		return n1, n1, err
 	}
 	address1 := os.Getenv("ADDRESS1")
-	address1pk := os.Getenv("ADDRESS1PK")//no 0x
+	address1pk := os.Getenv("ADDRESS1PK") //no 0x
 	address2 := os.Getenv("ADDRESS2")
-	print("address1:", address1, "\naddress1pk:", address1pk, "\naddress2:", address2)
+	print("address1:", address1, "\naddress2:", address2)
+	//"\naddress1pk:", address1pk,
 
-	const configFileName = "config.txt"
-	var myenv map[string]string
-	if myenv, err = godotenv.Read(configFileName); err != nil {
-		print("could not load config file from", configFileName, err)
-	}
-	addrLPToken := myenv["ADDRLPTOKEN"]
-	addrRewardToken := myenv["ADDRREWARDTOKEN"]
-	addrRewardCtrt := myenv["ADDRREWARDCTRT"]
-	print("\naddrLPToken", addrLPToken, "\naddrRewardToken:", addrRewardToken, "\naddrRewardCtrt:", addrRewardCtrt)
+	// addrLPToken := myenv["ADDRLPTOKEN"]
+	// addrRewardToken := myenv["ADDRREWARDTOKEN"]
+	//myenv["ADDRREWARDCTRT"]
+	print("\nnetwork:", network,
+		"\naddrRewardsPool:", addrRewardsPool)
+	//"\naddrLPToken", addrLPToken, "\naddrRewardToken:", addrRewardToken,
 
 	//os.Exit(0)
 	//------------------==getting address from private key
 	ctx := context.Background()
 	addr1 := common.HexToAddress(address1)
 	addr2 := common.HexToAddress(address2)
-	addrByteLPToken := common.HexToAddress(addrLPToken)
+	//addrByteLPToken := common.HexToAddress(addrLPToken)
 	//addrByteRewardToken := common.HexToAddress(addrRewardToken)
-	// addrByteRewardCtrt := common.HexToAddress(addrRewardCtrt)
+	addrByteRewardCtrt := common.HexToAddress(addrRewardsPool)
 
 	/*
-		    key, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
-		    if err != nil {
-		        panic(err)
-		    }
-					privateKey, err := crypto.GenerateKey()
-		    if err != nil {
-		        log.Fatal(err)
-		    }
+	key, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+	if err != nil {
+			panic(err)
+	}
+		privateKey, err := crypto.GenerateKey()
+	if err != nil {
+			log.Fatal(err)
+	}
 	*/
 	// type PrivateKey struct {
 	//     PublicKey
@@ -72,20 +76,24 @@ func preEthereum() {
 	prkECDSA1ptr, err := crypto.HexToECDSA(address1pk)
 	//func HexToECDSA(hexkey string) (*ecdsa.PrivateKey, error)
 	if err != nil {
-		log.Fatal(err)
+		print("err@ HexToECDSA.", err)
+		return n1, n1, err
 	}
 	//prkBytes := crypto.FromECDSA(prkECDSA1ptr)
 	//print(`prkBytes:`,prkBytes)
-	print("\nprkECDSA1ptr Type: %T, Value: %v\n", prkECDSA1ptr, prkECDSA1ptr)
+
+	//print("\nprkECDSA1ptr Type: %T, Value: %v\n", prkECDSA1ptr, prkECDSA1ptr)
 
 	pukCryptoPtr1 := prkECDSA1ptr.Public()
 	// type "crypto".PublicKey
-	print("\npukCryptoPtr1 Type: %T, Value: %v\n", pukCryptoPtr1, pukCryptoPtr1) //Type: *ecdsa.PublicKey
+
+	//print("\npukCryptoPtr1 Type: %T, Value: %v\n", pukCryptoPtr1, pukCryptoPtr1) //Type: *ecdsa.PublicKey
 	pukECDSAptr1, ok := pukCryptoPtr1.(*ecdsa.PublicKey)
 	if !ok {
-		log.Fatal("cannot assert type: pukCryptoPtr1 is not of type *ecdsa.PublicKey")
+		print("err@ cannot assert type: pukCryptoPtr1 is not of type *ecdsa.PublicKey.")
+		return n1, n1, nil
 	}
-	print("pukECDSAptr1 Type: %T, Value: %v\n", pukECDSAptr1, pukECDSAptr1)
+	//print("pukECDSAptr1 Type: %T, Value: %v\n", pukECDSAptr1, pukECDSAptr1)
 	//(type *ecdsa.PublicKey)
 
 	//publicKeyBytes := crypto.FromECDSAPub(pukECDSAptr1)
@@ -102,13 +110,19 @@ func preEthereum() {
 	// }
 	// var conn Client
 
-	EthNodeURL := "https://rinkeby.infura.io/v3/34d79804349241d8a6bbfb1351e33a62"
-	//"http://127.0.0.1:8545"
+	var EthNodeURL string
+	switch network{
+		case "mainnet":
+			EthNodeURL = os.Getenv("ETHEREUMMAIN")
+		case "rinkeby":
+			EthNodeURL = os.Getenv("ETHEREUMRINKEBY")
+	}
+
 	conn, err := ethclient.Dial(EthNodeURL)
 	// For an IPC based RPC connection to a remote node: /mnt/sda5/ethereum/geth.ipc
-
 	if err != nil {
-		log.Fatalf("failed to connect to the Ethereum network: %v", err)
+		print("err@ ethclient.Dial().", err)
+		return n1, n1, err
 	}
 	print("connection to Ethereum successful")
 
@@ -119,19 +133,16 @@ func preEthereum() {
 
 	nonceM, err := conn.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log.Fatal(err)
+		print("err@ PendingNonceAt.", err)
+		return n1, n1, err
 	}
 	print("nonceM:", nonceM)
 
 	gasPrice, err := conn.SuggestGasPrice(context.Background())
 	if err != nil {
-		log.Fatal(err)
+		print("err@ SuggestGasPrice.", err)
+		return n1, n1, err
 	} // estimate gas price
-
-	amountToSend := big.NewInt(1000)
-	//amount.SetString("1000000000000000000000", 10)
-	//0.01 wei = 10000000000000000
-	//nonce = big.NewInt(int64(nonce))
 
 	auth := bind.NewKeyedTransactor(prkECDSA1ptr)
 	auth.Nonce = big.NewInt(int64(nonceM))
@@ -141,24 +152,48 @@ func preEthereum() {
 
 	//https://github.com/what-the-func/golang-ethereum-transfer-tokens/blob/master/main.go
 
-	instance, err := NewRewards(addrByteLPToken, conn)
+	instRewards, err := NewRewards(addrByteRewardCtrt, conn)
 	if err != nil {
-		log.Fatal(err)
+		print("Failed to make new Rewards contract instance", err)
+		return n1, n1, err
 	}
+	//var instERC20 = nil
+	// instRewardToken
 
-	blockTimestamp, periodFinish, rewardRate, DURATION, err := instance.GetData1(nil)
+	//print("------------------== getRewardsCtrtValues")
+	amountToSend := big.NewInt(1000)
+	//amount.SetString("1000000000000000000000", 10)
+	//0.01 wei = 10000000000000000
+	//nonce = big.NewInt(int64(nonce))
+
+	stakedBalanceUser1, err := instRewards.BalanceOf(nil, addr1) // &bind.CallOpts{}
 	if err != nil {
-		log.Fatalf("Failed to retrieve GetData1: %v", err)
+		print("Failed to retrieve BalanceOf", err)
+		return n1, n1, err
 	}
-	print(blockTimestamp, periodFinish, rewardRate, DURATION)
+	print("staked balance of addr1:", stakedBalanceUser1)
 
-	balanceTokenUser1, err := instance.BalanceOf(&bind.CallOpts{}, addr1)
+	rewardRate, err := instRewards.RewardRate(nil)
 	if err != nil {
-		log.Fatal(err)
+		print("Failed to retrieve RewardRate", err)
+		return n1, n1, err
 	}
-	print("Token balance of addr1:", balanceTokenUser1)
+	print("rewardRate:", rewardRate)
 
-	// balanceTokenkUser2, err := instance.BalanceOf(&bind.CallOpts{}, addr2)
+	totalSupply, err := instRewards.TotalSupply(nil)
+	if err != nil {
+		print("Failed to retrieve totalSupply")
+		return n1, n1, err
+	}
+	print("totalSupply:", totalSupply)
+
+	// blockTimestamp, periodFinish, rewardRate, DURATION, err := instRewards.GetData1(nil)
+	// if err != nil {
+	// 	print("Failed to retrieve GetData1: %v", err)
+	// }
+	// print("blockTimestamp:", blockTimestamp, ", periodFinish:", periodFinish, ", rewardRate:", rewardRate, ", DURATION:", DURATION)
+
+	// balanceTokenkUser2, err := instRewards.BalanceOf(&bind.CallOpts{}, addr2)
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
@@ -167,15 +202,18 @@ func preEthereum() {
 	//os.Exit(0)
 	isToSend := false
 	if isToSend {
-		tx, err := instance.Stake(auth, amountToSend)
+		tx, err := instRewards.Stake(auth, amountToSend)
 		if err != nil {
-			log.Fatal(err)
+			return n1, n1, err
 		}
 		print("transaction hash: %s", tx.Hash().Hex())
 	} else {
 		print("\nno transaction was made")
 		print("\namountToSend: %s", amountToSend)
 	}
+
+	return rewardRate, totalSupply, nil
+
 }
 
 /*

@@ -6,11 +6,13 @@ package main
 
 import (
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 // LocStr ...
@@ -25,11 +27,20 @@ var IsProduction = true // then set c value in the switch
 // IsToScrape ...
 var IsToScrape = true
 
+// isServerON ...
+var isServerON = true
+
 // MaxRiskScore ...
 var MaxRiskScore = 90
 
 //BlacCategories ...
 var BlacCategories = []string{"hacker", "scam", "ransomware", "criminal", "money laundering", "terrorist financing"}
+
+// EthereumNetwork ...
+var EthereumNetwork = ""
+
+//Cfg ...
+var Cfg Config
 
 func main() {
 	//-------------------== Initial Conditions
@@ -49,12 +60,20 @@ func main() {
 	IsToScrape = os.Getenv("ISTOSCRAPE") == "1"
 	print("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 
+	err := cleanenv.ReadConfig("config.yml", &Cfg)
+	if err != nil {
+		print("reading config file failed")
+		return
+	}
+	//print("Cfg:", Cfg)
+	EthereumNetwork = Cfg.EthereumNetwork.Name
+
 	//-------------------== Routers
 	router := mux.NewRouter()
 	router.HandleFunc("/member", httpCreateUser).Methods("POST")
 	router.HandleFunc("/member", httpReadUser).Methods("GET")
-	router.HandleFunc("/member", httpUpdateUser).Methods("PUT")
-	router.HandleFunc("/member", httpDeleteUser).Methods("DELETE")
+	//router.HandleFunc("/member", httpUpdateUser).Methods("PUT")
+	//router.HandleFunc("/member", httpDeleteUser).Methods("DELETE")
 
 	// router.HandleFunc("/securities", httpCreateUsers).Methods("POST")
 	// router.HandleFunc("/securities", httpReadUsers).Methods("GET")
@@ -70,7 +89,7 @@ func main() {
 	// router.HandleFunc("/aries10reset", httpApyReset).Methods("PUT")
 	// router.HandleFunc("/aries10", httpApyU).Methods("PUT")
 
-	router.HandleFunc("/ariesapy", httpAriesR).Methods("GET")
+	router.HandleFunc("/ariesapy", httpGetApyAries).Methods("GET")
 	router.HandleFunc("/ariesapy", httpAriesU).Methods("PUT")
 
 	router.HandleFunc("/ping", ping).Methods("GET")
@@ -115,8 +134,8 @@ func main() {
 	if 0 == 2 {
 		reqBody := ReqBody{
 			SourceName: "uniswap",
-			Token0: "afi",
-			Token1: "usdc",
+			Token0:     "afi",
+			Token1:     "usdc",
 		}
 		inputLambda := InputLambda{
 			Body: reqBody,
@@ -133,8 +152,7 @@ func main() {
 		sourceURL := "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
 		loadingTime := 7
 		regexpStr := `[-+]?[0-9]*\.?[0-9]+`
-		//ss, err := chromedpScraper(sourceURL, loadingTime)
-		ss, err := chromedpScraperFake(sourceURL, loadingTime)
+		ss, err := chromedpScraper(sourceURL, loadingTime, IsToScrape)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -152,11 +170,78 @@ func main() {
 		//<div class="sc-bdVaJa KpMoH css-9on69b">$10.39</div>
 	}
 	if 1 == 2 {
-		preEthereum();
+		//setupEthereum()
+		rewardsPool := "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
+		rewardRate, totalSupply, err := getRewardsCtrtValues(rewardsPool, "mainnet")
+		if err != nil {
+			print("setupEthereum failed")
+			os.Exit(1)
+		}
+		print("rewardRate:", rewardRate, ", totalSupply:", totalSupply)
+	}
+	if 1 == 2 {
+		tokenPrice := float64(33.00001)
+		mag := int64(100000)
+		tokenPriceBI := float64ToBigInt(tokenPrice, mag)
+		print("tokenPriceBI:", tokenPriceBI)
+
+		maginfierBF := big.NewFloat(1000000)
+		var ourAPYbn, _ = new(big.Int).SetString("547040", 10)
+		print("ourAPYbn:", ourAPYbn)
+		ourAPYf := new(big.Float).SetInt(ourAPYbn)
+		print("ourAPYf:", ourAPYf)
+		ourAPYbf := new(big.Float).Quo(ourAPYf, maginfierBF)
+		print("ourAPYbf:", ourAPYbf)
 	}
 
+	if 1 == 2 {
+		choice := 31
+		var addrRewardsPool string
+		switch choice {
+		case 1:
+			addrRewardsPool = "0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6"
+
+		case 11:
+			addrRewardsPool = "0x9cd43309c9e122a13b466391babc5dec8be1e01e"
+		case 12:
+			addrRewardsPool = "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
+		case 21:
+			addrRewardsPool = "0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C"
+
+		case 31:
+			addrRewardsPool = "0x825241bA78700c11a4615523dF4B70F78C7384aa"
+		}
+		print("addrRewardsPool:", addrRewardsPool)
+		reqBody := ReqBody{
+			RewardsPool: addrRewardsPool,
+		}
+		inputLambda := InputLambda{
+			Body: reqBody,
+		}
+		outputLambdaPt, err := getApyAries(inputLambda)
+		print("result:", outputLambdaPt)
+		if err != nil || outputLambdaPt.Mesg != "ok" {
+			print("\n====>>>> err@ writeRowX")
+		}
+		print("addrRewardsPool:", addrRewardsPool)
+		print("IsToScrape:", IsToScrape)
+	} /*
+		curl 'localhost:3000/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6' | jq
+		-------==
+
+		curl 'localhost:3000/ariesapy?rewardspool=0x9cd43309C9E122A13b466391bABC5deC8bE1E01E' | jq
+
+		curl 'localhost:3000/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6' | jq
+
+		curl 'localhost:3000/ariesapy?rewardspool=0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C' | jq
+		curl 'localhost:3000/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa' | jq
+	*/
+
+	//print("\nport"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 	print("listening on", port)
-	log.Fatal(http.ListenAndServe(port, router))
+	if isServerON {
+		log.Fatal(http.ListenAndServe(port, router))
+	}
 }
 
 /*

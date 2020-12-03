@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -120,45 +121,87 @@ func fetchCoinMarketCap() ([]byte, error) {
 	return b, err
 }*/
 
-func chromedpScraper(targetURL string, loadingTime int) ([]string, error) {
+func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]string, error) {
 	print("---------------== chromedpScraper()")
-	ctx, cancel := chromedp.NewContext(
-		context.Background(),
-		chromedp.WithLogf(log.Printf),
-	)
-	defer cancel()
+	if isToScrape {
+		ctx, cancel := chromedp.NewContext(
+			context.Background(),
+			chromedp.WithLogf(log.Printf),
+		)
+		defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 15*time.Second)
-	defer cancel()
+		ctx, cancel = context.WithTimeout(ctx, 15*time.Second)
+		defer cancel()
 
-	var text1, text2 string
-	print("run chromedp")
-	err := chromedp.Run(ctx,
-		chromedp.Navigate(targetURL),
-		// wait for element is visible(loaded)
-		chromedp.WaitVisible(`body > #root`),
-		chromedp.ActionFunc(func(context.Context) error {
-			print("waiting x seconds...")
-			return nil
-		}),
-		chromedp.Sleep(time.Duration(loadingTime)*time.Second),
-		//chromedp.OuterHTML(`#center .sc-bdVaJa.KpMoH.css-9on69b`, &outerHTML1),
-		chromedp.Text(`#center .sc-bdVaJa.KpMoH.css-9on69b`, &text1),
-		chromedp.Text(`#center .sc-bdVaJa.KpMoH.css-flugrv`, &text2),
-	)
-	/*chrome browser: copy selector
-	#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-eTuwsz.bFSUTM > div:nth-child(1) > div > div.sc-ifAKCX.sc-bZQynM.sc-gzVnrw.hatkAI > div.sc-bdVaJa.KpMoH.css-9on69b
+		var text1, text2 string
+		print("run chromedp")
+		err := chromedp.Run(ctx,
+			chromedp.Navigate(targetURL),
+			// wait for element is visible(loaded)
+			chromedp.WaitVisible(`body > #root`),
+			chromedp.ActionFunc(func(context.Context) error {
+				print("waiting x seconds...")
+				return nil
+			}),
+			chromedp.Sleep(time.Duration(loadingTime)*time.Second),
+			//chromedp.OuterHTML(`#center .sc-bdVaJa.KpMoH.css-9on69b`, &outerHTML1),
+			chromedp.Text(`#center .sc-bdVaJa.KpMoH.css-9on69b`, &text1),
+			chromedp.Text(`#center .sc-bdVaJa.KpMoH.css-flugrv`, &text2),
+		)
+		/*chrome browser: copy selector
+		#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-eTuwsz.bFSUTM > div:nth-child(1) > div > div.sc-ifAKCX.sc-bZQynM.sc-gzVnrw.hatkAI > div.sc-bdVaJa.KpMoH.css-9on69b
 
-	#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-ifAKCX.sc-bZQynM.sc-dnqmqq.feLJDb > div:nth-child(1) > div > div.sc-bdVaJa.KpMoH.css-flugrv
-	*/
-	print("text1:", text1, ", text2:", text2)
-	if len(text2) > 2 {
-		text2 = strings.TrimSpace(text2)[2:]
+		#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-ifAKCX.sc-bZQynM.sc-dnqmqq.feLJDb > div:nth-child(1) > div > div.sc-bdVaJa.KpMoH.css-flugrv
+		*/
+		print("text1:", text1, ", text2:", text2)
+		if len(text2) > 2 {
+			text2 = strings.TrimSpace(text2)[2:]
+		}
+		print("chromedpScraper is successful")
+		return []string{strings.TrimSpace(text1), text2}, err
 	}
-	return []string{strings.TrimSpace(text1), text2}, err
+	print("isToScrape is false")
+	return []string{"$1022.03", "AFI = 33.00001 USDC"}, nil
 }
 
-func chromedpScraperFake(targetURL string, loadingTime int) ([]string, error) {
-	print("---------------== chromedpScraperFake()")
-	return []string{"$10.37", "AFI = 33.00001 USDC"}, nil
+func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, error) {
+	print("-----------== doChromedpAndRegexp()")
+	regexpStr := `[-+]?[0-9]*\.?[0-9]+`
+	pairData := PairData{}
+	var ss []string
+	var err error
+	if tokenPriceSource == "" || loadingTime <= 0 {
+		print("input invalid")
+		return pairData, nil
+	}
+	ss, err = chromedpScraper(tokenPriceSource, loadingTime, IsToScrape)
+	if err != nil {
+		return pairData, err
+	}
+
+	print("scraper output:", ss)
+	pairData, err = doregexp2FindInBtw(ss, regexpStr)
+	if err != nil {
+		return pairData, err
+	}
+	return pairData, nil
+}
+
+func getTokenData(tokenPriceSource string, loadingTime int) (PairData, error) {
+	print("-----------== getTokenPairData()")
+	var tokenPrice float64 = 1.00001
+	var totalLiquidity float64 = 1020.01
+
+	if tokenPriceSource == "" {
+		print("no tokenPriceSource... use default tokenPrice and totalLiquidity...")
+		return PairData{
+			Price:          tokenPrice,
+			TotalLiquidity: totalLiquidity,
+		}, nil
+	}
+	if loadingTime <= 0 {
+		return PairData{}, errors.New("loading time invalid")
+	}
+	pairData, err := doChromedpAndRegexp(tokenPriceSource, loadingTime)
+	return pairData, err
 }

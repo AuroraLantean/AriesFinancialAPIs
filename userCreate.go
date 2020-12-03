@@ -11,7 +11,12 @@ import (
 	"database/sql"
 )
 
-// CreateUser ...
+/* CreateUser ...
+User Signup Scenario - CreateUser: 
+a new user signs up, the API will check for this user's address via security function ->
+if this address is okay, then add such new user to our DB
+else if this address is a hacker or something like that, response is to reject this user.
+*/
 func CreateUser(inputLambda InputLambda) (*OutputLambda, error) {
 	print("---------------== CreateUser")
 	dump("inputLambda.Body:", inputLambda.Body)

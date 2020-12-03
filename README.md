@@ -82,6 +82,12 @@ request body: Use either userID or ethAdress<br>
 {"ethereumAddr":"your_eth_address"}<br>
 {"userID":"5"}<br>
 
+------------== Get Rewards Pool APY<br>
+request type: GET, endpoint: /ariesapy<br>
+request params: reward contract address<br>
+
+/ariesapy?rewardspool={rewards contract address}
+
 ------------== Read Reward<br>
 Use either rewardID or (userID and vaultID) as param<br>
 curl 'localhost:3000/reward?userID=6&vaultID=1' | jq

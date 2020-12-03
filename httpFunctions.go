@@ -73,17 +73,15 @@ func httpAriesU(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// httpAriesR ...
-func httpAriesR(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpAriesR")
-	token0 := r.URL.Query().Get("token0")
-	token1 := r.URL.Query().Get("token1")
-	sourceName := r.URL.Query().Get("sourceName")
-	reqBody := ReqBody{Token0: token0, Token1: token1, SourceName: sourceName}
+// httpGetApyAries ...
+func httpGetApyAries(w http.ResponseWriter, r *http.Request) {
+	print("---------------== httpGetApyAries")
+	RewardsPool := r.URL.Query().Get("rewardspool")
+	reqBody := ReqBody{RewardsPool: RewardsPool}
 	print("over to lambda function")
 	print("reqBody:", reqBody)
 	inputLambda := InputLambda{Body: reqBody}
-	outputLambdaPt, err := tokenDataByChromedpR(inputLambda)
+	outputLambdaPt, err := getApyAries(inputLambda)
 	print("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
 		print("\n====>>>> err@ writeRowX")

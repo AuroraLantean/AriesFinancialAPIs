@@ -11,7 +11,13 @@ import (
 	"database/sql"
 )
 
-// UpdateUser ...
+/*UpdateUser ...
+User Update Scenario - UpdateUser: 
+an existing user wants to update his info in our User DB table.
+the API will check for this user's address via security function ->
+if this address is okay, then update such user's info in our DB
+else if this address is a hacker or something like that, response is to reject this request.
+*/
 func UpdateUser(inputLambda InputLambda) (*OutputLambda, error) {
 	print("---------------== UpdateUser")
 	dump("inputLambda.Body:", inputLambda.Body)
