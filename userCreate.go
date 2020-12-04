@@ -11,7 +11,7 @@ import (
 	"database/sql"
 )
 
-/* CreateUser ...
+/*CreateUser ...
 User Signup Scenario - CreateUser: 
 a new user signs up, the API will check for this user's address via security function ->
 if this address is okay, then add such new user to our DB

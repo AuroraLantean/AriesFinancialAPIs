@@ -1,6 +1,6 @@
 #!/bin/bash
 #chmod u+x this_script.sh
-echo "inside goBuild.sh ..."
+echo "inside goZip.sh ..."
 echo "..."
 #rm main main.zip
 
@@ -22,3 +22,6 @@ else
   echo "non linux 64-bit os is detected"
   GOOS=linux GOARCH-amd64 go build *.go -o main 
 fi
+
+zip main.zip main .env config.yml
+echo "confirm the zip file include the .env and config.yml file!"
