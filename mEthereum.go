@@ -34,7 +34,7 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 	log1("gett env file")
 	err := godotenv.Load()
 	if err != nil {
-		log1("err@ loading .env file.", err)
+		logE.Println("err@ loading .env file.", err)
 		return n1, n1, err
 	}
 	address1 := os.Getenv("ADDRESS1")
@@ -76,7 +76,7 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 	prkECDSA1ptr, err := crypto.HexToECDSA(address1pk)
 	//func HexToECDSA(hexkey string) (*ecdsa.PrivateKey, error)
 	if err != nil {
-		log1("err@ HexToECDSA.", err)
+		logE.Println("err@ HexToECDSA.", err)
 		return n1, n1, err
 	}
 	//prkBytes := crypto.FromECDSA(prkECDSA1ptr)
@@ -90,7 +90,7 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 	//log1("\npukCryptoPtr1 Type: %T, Value: %v\n", pukCryptoPtr1, pukCryptoPtr1) //Type: *ecdsa.PublicKey
 	pukECDSAptr1, ok := pukCryptoPtr1.(*ecdsa.PublicKey)
 	if !ok {
-		log1("err@ cannot assert type: pukCryptoPtr1 is not of type *ecdsa.PublicKey.")
+		logE.Println("err@ cannot assert type: pukCryptoPtr1 is not of type *ecdsa.PublicKey.")
 		return n1, n1, nil
 	}
 	//log1("pukECDSAptr1 Type: %T, Value: %v\n", pukECDSAptr1, pukECDSAptr1)
@@ -121,7 +121,7 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 	conn, err := ethclient.Dial(EthNodeURL)
 	// For an IPC based RPC connection to a remote node: /mnt/sda5/ethereum/geth.ipc
 	if err != nil {
-		log1("err@ ethclient.Dial().", err)
+		logE.Println("err@ ethclient.Dial().", err)
 		return n1, n1, err
 	}
 	log1("connection to Ethereum successful")
@@ -133,14 +133,14 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 
 	nonceM, err := conn.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log1("err@ PendingNonceAt.", err)
+		logE.Println("err@ PendingNonceAt.", err)
 		return n1, n1, err
 	}
 	log1("nonceM:", nonceM)
 
 	gasPrice, err := conn.SuggestGasPrice(context.Background())
 	if err != nil {
-		log1("err@ SuggestGasPrice.", err)
+		logE.Println("err@ SuggestGasPrice.", err)
 		return n1, n1, err
 	} // estimate gas price
 
@@ -154,7 +154,7 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 
 	instRewards, err := NewRewards(addrByteRewardCtrt, conn)
 	if err != nil {
-		log1("Failed to make new Rewards contract instance", err)
+		logE.Println("Failed to make new Rewards contract instance", err)
 		return n1, n1, err
 	}
 	//var instERC20 = nil
@@ -168,21 +168,21 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 
 	stakedBalanceUser1, err := instRewards.BalanceOf(nil, addr1) // &bind.CallOpts{}
 	if err != nil {
-		log1("Failed to retrieve BalanceOf", err)
+		logE.Println("Failed to retrieve BalanceOf", err)
 		return n1, n1, err
 	}
 	log1("staked balance of addr1:", stakedBalanceUser1)
 
 	rewardRate, err := instRewards.RewardRate(nil)
 	if err != nil {
-		log1("Failed to retrieve RewardRate", err)
+		logE.Println("Failed to retrieve RewardRate", err)
 		return n1, n1, err
 	}
 	log1("rewardRate:", rewardRate)
 
 	totalSupply, err := instRewards.TotalSupply(nil)
 	if err != nil {
-		log1("Failed to retrieve totalSupply")
+		logE.Println("Failed to retrieve totalSupply")
 		return n1, n1, err
 	}
 	log1("totalSupply:", totalSupply)

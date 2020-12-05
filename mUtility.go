@@ -41,7 +41,7 @@ func logFatal(err error) {
 
 func logErr(str string, err error) {
 	if err != nil {
-		log.Println(str, err)
+		logE.Println(str, err)
 	}
 }
 
@@ -52,7 +52,7 @@ var dump = spew.Dump
 func loadEnv() string {
 	err := godotenv.Load()
 	if err != nil {
-		print("cannot load env file. err:", err)
+		logE.Println("cannot load env file. err:", err)
 		return "cannot load env file"
 	}
 	return "ok"
@@ -84,7 +84,7 @@ func GetLocalTime(locStr string) (time.Time, string, error) {
 	loc, err := time.LoadLocation(locStr)
 	timeNow := time.Now().In(loc)
 	timeNowStr := timeNow.Format("2006-01-02 15:04:05")
-	print("timeNow:", timeNow, ", timeNowStr:", timeNowStr, ", err:", err)
+	log1("timeNow:", timeNow, ", timeNowStr:", timeNowStr, ", err:", err)
 	return timeNow, timeNowStr, err
 }
 
@@ -95,15 +95,15 @@ func GetLocalTime(locStr string) (time.Time, string, error) {
 */
 func ParseTime(timeStr string) (time.Time, error) {
 	const longForm = "2006-01-2 15:04:05"
-	//print("ParseTime() input:", timeStr)
+	//log1("ParseTime() input:", timeStr)
 	t, err := time.Parse(longForm, timeStr)
-	print("parsed time:", t, ", err:", err)
+	log1("parsed time:", t, ", err:", err)
 	return t, err
 }
 
 // lambdaFunc ...
 func lambdaFunc(input InputLambda) (*OutputLambda, error) {
-	print("---------------== lambdaFunc")
+	log1("---------------== lambdaFunc")
 	//dump("input:", input)
 	//rawBody := input.Body
 	timeout := 5
@@ -111,28 +111,28 @@ func lambdaFunc(input InputLambda) (*OutputLambda, error) {
 
 	ch1 := make(chan *OutputLambda)
 	go SubLambda(ch1, input, delay)
-	//print("Goroutines#:", runtime.NumGoroutine()) // => 2
+	//log1("Goroutines#:", runtime.NumGoroutine()) // => 2
 
 	var outputPtr *OutputLambda
 	var outMesg string
 	select {
 	case <-time.After(time.Duration(timeout) * time.Second):
 		outMesg = "timeout has been reached"
-		print(outMesg)
+		log1(outMesg)
 		outputPtr = &OutputLambda{
 			Code: "110099",
 			Mesg: outMesg,
 			Data: nil,
 		}
 	case outputPtr = <-ch1:
-		print("channel value has been returned")
+		log1("channel value has been returned")
 	}
 	return outputPtr, nil
 }
 
 // SubLambda ...
 func SubLambda(ch1 chan *OutputLambda, input InputLambda, delay int) { //wg *sync.WaitGroup
-	print("----------== SubLambda")
+	log1("----------== SubLambda")
 	dump(input)
 	time.Sleep(time.Duration(delay) * time.Second)
 
@@ -148,7 +148,7 @@ func SubLambda(ch1 chan *OutputLambda, input InputLambda, delay int) { //wg *syn
 
 // ExecuteRoutine ...
 func ExecuteRoutine(routineInputs RoutineInputs) (*RoutineOut, error) {
-	print("---------------== ExecuteRoutine")
+	log1("---------------== ExecuteRoutine")
 	dump("routineInputs:", routineInputs)
 	routineName := routineInputs.RoutineName
 	routineAddr := routineInputs.Address
@@ -168,20 +168,20 @@ func ExecuteRoutine(routineInputs RoutineInputs) (*RoutineOut, error) {
 		go MakeGraphqlRequest(ch1, routineAddr, bodyStr)
 
 	default:
-		print("routineName has no match!")
+		logE.Println("routineName has no match!")
 		return &RoutineOut{"110030", "function input not valid",
 			"NA"}, nil
 	}
-	//print("Goroutines#:", runtime.NumGoroutine()) // => 2
+	//log1("Goroutines#:", runtime.NumGoroutine()) // => 2
 
 	var RoutineOutPtr *RoutineOut
 	select {
 	case <-time.After(time.Duration(timeout) * time.Second):
-		print("routine takes too long. timeout has been reached")
+		log1("routine takes too long. timeout has been reached")
 		RoutineOutPtr = &RoutineOut{"110028",
 			"routine takes too long: " + toStr(timeout) + " seconds", "NA"}
 	case RoutineOutPtr = <-ch1:
-		print("Success. CallGoroutine() channel value has been returned")
+		log1("Success. CallGoroutine() channel value has been returned")
 	}
 	return RoutineOutPtr, nil
 }
@@ -189,7 +189,7 @@ func ExecuteRoutine(routineInputs RoutineInputs) (*RoutineOut, error) {
 // MakeGraphqlRequest ...
 func MakeGraphqlRequest(ch1 chan *RoutineOut,
 	requestURL string, bodyStr string) {
-	print("----------== MakeGraphqlRequest")
+	log1("----------== MakeGraphqlRequest")
 	dump(requestURL, bodyStr)
 	//requestBody := strings.NewReader(bodyStr)
 	jsonData := map[string]string{
@@ -219,35 +219,35 @@ func MakeGraphqlRequest(ch1 chan *RoutineOut,
 	resp, err := client.Do(request)
 
 	if err != nil {
-		print("http.Post():", err)
+		log1("http.Post():", err)
 		ch1 <- &RoutineOut{"110023", "er@ http.Post()", "NA"}
 	}
 	if resp == nil || resp.Body == nil {
-		print("err@ resp or resp.Body is niil:", resp)
+		log1("err@ resp or resp.Body is niil:", resp)
 		ch1 <- &RoutineOut{"110035", "HTTP response is nil or its body is nil", "NA"}
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		print("err@ reading response error: ioutil.ReadAll:", err)
+		log1("err@ reading response error: ioutil.ReadAll:", err)
 		ch1 <- &RoutineOut{"110031", "reading response error", "NA"}
 	}
 	respStr := string(respBody)
-	print("\nrespStr:", respStr)
+	log1("\nrespStr:", respStr)
 
 	err = resp.Body.Close()
 	if err != nil {
-		print("response close resp.Body.Close():", err)
+		log1("response close resp.Body.Close():", err)
 		ch1 <- &RoutineOut{"110032", "err@ resp.Body.Close()",
 			respStr}
 	}
-	print("successful@ MakeGraphqlRequest")
+	log1("successful@ MakeGraphqlRequest")
 	ch1 <- &RoutineOut{"0", "ok", respBody}
 }
 
 // MakeHTTPPOST ...
 func MakeHTTPPOST(ch1 chan *RoutineOut,
 	requestURL string, bodyStr string) {
-	print("----------== MakeHTTPPOST")
+	log1("----------== MakeHTTPPOST")
 	dump(requestURL, bodyStr)
 	//requestBody := strings.NewReader(bodyStr)
 
@@ -266,7 +266,7 @@ func MakeHTTPPOST(ch1 chan *RoutineOut,
 			token1Price
 		}
 		}`)
-	print("requestBody:", requestBody)
+	log1("requestBody:", requestBody)
 	resp, err := http.Post(
 		requestURL,
 		"application/json; charset=UTF-8",
@@ -274,89 +274,89 @@ func MakeHTTPPOST(ch1 chan *RoutineOut,
 	)
 
 	if err != nil {
-		print("http.Post():", err)
+		log1("http.Post():", err)
 		ch1 <- &RoutineOut{"110023", "er@ http.Post()", "NA"}
 	}
 	if resp == nil || resp.Body == nil {
-		print("err@ resp or resp.Body is niil:", resp)
+		log1("err@ resp or resp.Body is niil:", resp)
 		ch1 <- &RoutineOut{"110035", "HTTP response is nil or its body is nil", "NA"}
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		print("err@ reading response error: ioutil.ReadAll:", err)
+		log1("err@ reading response error: ioutil.ReadAll:", err)
 		ch1 <- &RoutineOut{"110031", "reading response error", "NA"}
 	}
 	respStr := string(respBody)
-	print("\nrespStr:", respStr)
+	log1("\nrespStr:", respStr)
 
 	/*
 		items := strings.Split(respStr, ",")
 		if len(items) < 1 {
-			print("err@ response length not valid")
+			log1("err@ response length not valid")
 			ch1 <- &RoutineOut{"110033", "response length not valid", respStr}
 		}
 		balance := toFloat(items[0])
 		if balance < 0 {
-			print("failed")
+			log1("failed")
 			ch1 <- &RoutineOut{"110034", "failed", respStr}
 		}
 	*/
 
 	err = resp.Body.Close()
 	if err != nil {
-		print("response close resp.Body.Close():", err)
+		log1("response close resp.Body.Close():", err)
 		ch1 <- &RoutineOut{"110032", "err@ resp.Body.Close()",
 			respStr}
 	}
-	print("successful@ MakeHTTPPOST")
+	log1("successful@ MakeHTTPPOST")
 	ch1 <- &RoutineOut{"0", "ok", respBody}
 }
 
 // MakeHTTPRequest ...
 func MakeHTTPRequest(ch1 chan *RoutineOut,
 	requestURL string, method string) {
-	print("----------== MakeHTTPRequest")
+	log1("----------== MakeHTTPRequest")
 	dump(requestURL)
 	client := &http.Client{}
 	req, err := http.NewRequest(method, requestURL, nil)
 	//resp, err := http.Get(requestURL)
 	if err != nil {
-		print("http.NewRequest():", err)
+		log1("http.NewRequest():", err)
 		ch1 <- &RoutineOut{"110023", "er@ http.NewRequest()", "NA"}
 	}
 	resp, err := client.Do(req)
 	if resp == nil || resp.Body == nil {
-		print("err@ resp or resp.Body is niil:", resp)
+		log1("err@ resp or resp.Body is niil:", resp)
 		ch1 <- &RoutineOut{"110035", "HTTP response is nil or its body is nil", "NA"}
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		print("err@ reading response error: ioutil.ReadAll:", err)
+		log1("err@ reading response error: ioutil.ReadAll:", err)
 		ch1 <- &RoutineOut{"110031", "reading response error", "NA"}
 	}
 	respStr := string(respBody)
-	print("\nrespStr:", respStr)
+	log1("\nrespStr:", respStr)
 
 	/*
 		items := strings.Split(respStr, ",")
 		if len(items) < 1 {
-			print("err@ response length not valid")
+			log1("err@ response length not valid")
 			ch1 <- &RoutineOut{"110033", "response length not valid", respStr}
 		}
 		balance := toFloat(items[0])
 		if balance < 0 {
-			print("failed")
+			log1("failed")
 			ch1 <- &RoutineOut{"110034", "failed", respStr}
 		}
 	*/
 
 	err = resp.Body.Close()
 	if err != nil {
-		print("response close resp.Body.Close():", err)
+		log1("response close resp.Body.Close():", err)
 		ch1 <- &RoutineOut{"110032", "err@ resp.Body.Close()",
 			respStr}
 	}
-	print("successful")
+	log1("successful")
 	ch1 <- &RoutineOut{"0", "ok", respBody}
 }
 
@@ -373,12 +373,12 @@ func toStr64(i64 int64) string {
 // to convert string to int
 func toInt(s string) int {
 	if s == "" {
-		print("err@ toInt: input string is empty:", s)
+		logE.Println("err@ toInt: input string is empty:", s)
 		return -111
 	}
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		print("err@ toInt: input string:", s, ", err:", err)
+		logE.Println("err@ toInt: input string:", s, ", err:", err)
 		return -111
 	}
 	return i
@@ -387,14 +387,14 @@ func toInt(s string) int {
 // to convert string to float
 func toFloat(s string) float64 {
 	if s == "" {
-		print("input string is empty")
+		logE.Println("input string is empty")
 		return -111.00
 	}
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		print("err@converting string to a float. s:", s, ", err:", err)
+		logE.Println("err@converting string to a float. s:", s, ", err:", err)
 		return -111.00
-		//print(f) // bitSize is 32 for float32 convertible,
+		//log1(f) // bitSize is 32 for float32 convertible,
 		// 64 for float64
 	}
 	return f
@@ -419,30 +419,30 @@ func float64ToBigInt(val float64, mag int64) *big.Int {
 // MakeHTTPGET ...
 func MakeHTTPGET(ch1 chan *RoutineOut,
 	requestURL string) {
-	print("----------== MakeHTTPGET")
+	log1("----------== MakeHTTPGET")
 	dump(requestURL)
 	resp, err := http.Get(requestURL)
 	if err != nil {
-		print("error@http.Get():", err)
+		log1("error@http.Get():", err)
 		ch1 <- &RoutineOut{"110023", "error@http.Get()", "NA"}
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		print("reading response error@ioutil.ReadAll:", err)
+		log1("reading response error@ioutil.ReadAll:", err)
 		ch1 <- &RoutineOut{"110031", "reading response error", "NA"}
 	}
 	respStr := string(respBody)
-	print("respStr:", respStr)
+	log1("respStr:", respStr)
 
 	items := strings.Split(respStr, ",")
 	if len(items) < 1 {
-		print("response length not valid")
+		log1("response length not valid")
 		ch1 <- &RoutineOut{"110033", "response length not valid", respStr}
 	}
 	balance := toFloat(items[0])
 	if balance < 0 {
-		print("delivery failed")
+		log1("delivery failed")
 		ch1 <- &RoutineOut{"110034", "delivery failed", respStr}
 	}
 	/*Response String:
@@ -450,34 +450,39 @@ func MakeHTTPGET(ch1 chan *RoutineOut,
 
 	err = resp.Body.Close()
 	if err != nil {
-		print("response close error@ resp.Body.Close():", err)
+		log1("response close error@ resp.Body.Close():", err)
 		ch1 <- &RoutineOut{"110032", "response close error",
 			respStr}
 	}
-	print("successful")
+	log1("successful")
 	ch1 <- &RoutineOut{"0", "OK", respStr}
 }
 
 func doregexp2FindInBtw(ss []string, regexpStr string) (PairData, error) {
 	pairData := PairData{}
 	for idx, v := range ss {
-		print("idx", idx, ":", v)
+		log1("idx", idx, ":", v)
 		out, err := regexp2FindInBtw(v, regexpStr)
 		if err != nil {
-			print("err:", err)
+			logE.Println("err:", err)
 			return PairData{}, nil
 		}
-		print("out:", out)
+		log1("out:", out)
 		switch {
 		case idx == 0:
 			pairData.TotalLiquidity = toFloat(out)
 		case idx == 1:
 			pairData.Price = toFloat(out)
 		default:
-			print("idx not needed")
+			log1("idx not needed")
 		}
 	}
-	print("\npairData:")
+	log1("\n doregexp2FindInBtw pairData:")
+	log1("Price:", pairData.Price)
+	log1("TotalLiquidity:", pairData.TotalLiquidity)
+	log1("TotalValueLocked:", pairData.TotalValueLocked)
+	log1("WeeklyROI:", pairData.WeeklyROI)
+	log1("APY:", pairData.APY)
 	dump(pairData)
 	return pairData, nil
 }
@@ -492,7 +497,7 @@ func regexp2FindInBtw(inputStr string, pattern string) (string, error) {
 	if err != nil {
 		return strOut, errors.New("err@ re.MatchString")
 	}
-	fmt.Println("isMatch:", isMatch)
+	log1("isMatch:", isMatch)
 	if isMatch {
 		if m, err := re.FindStringMatch(inputStr); m != nil {
 			if err != nil {
@@ -500,15 +505,15 @@ func regexp2FindInBtw(inputStr string, pattern string) (string, error) {
 			}
 			// the whole match is always group 0
 			strOut = m.String()
-			fmt.Printf("Group 0: %v\n", "=="+strOut+"==")
+			log1("Group 0:==" + strOut + "==")
 			return strOut, nil
 			//return removeBothEnds(strOut), nil
 			// you can get all the groups too
 			// gps := m.Groups()
 
 			// // a group can be captured multiple times, so each cap is separately addressable
-			// fmt.Println("Group 1, first capture", gps[1].Captures[0].String())
-			// fmt.Println("Group 1, second capture", gps[1].Captures[1].String())
+			// log1("Group 1, first capture", gps[1].Captures[0].String())
+			// log1("Group 1, second capture", gps[1].Captures[1].String())
 		}
 	}
 	return strOut, nil
@@ -526,29 +531,29 @@ func removeBothEnds(strIn string) string {
 // to check input for minimum length
 func checkStrFixLength(s string, fixedLen int, inputName string) (bool, error) {
 	if s == "" {
-		print(inputName + " is empty")
+		logE.Println(inputName + " is empty")
 		return false, errors.New(inputName + " is empty:")
 	}
 	strlen := utf8.RuneCountInString(s)
 	if strlen != fixedLen {
-		print(inputName, "of length", strlen, "should be of", toStr(fixedLen), "characters in length")
+		logE.Println(inputName, "of length", strlen, "should be of", toStr(fixedLen), "characters in length")
 		return false, errors.New(inputName + " should be of " + toStr(fixedLen) + " characters in length")
 	}
-	print(inputName + " is valid via checkStrFixLength")
+	log1(inputName + " is valid via checkStrFixLength")
 	return true, nil
 }
 
 // to check input for minimum length
 func checkInput(s string, minLen int, inputName string) (bool, error) {
 	if s == "" {
-		print(inputName + " is empty")
+		logE.Println(inputName + " is empty")
 		return false, errors.New(inputName + " is empty:")
 	}
 	if utf8.RuneCountInString(s) < minLen {
-		print(inputName + " should be at least " + toStr(minLen) + " characters in length")
+		logE.Println(inputName + " should be at least " + toStr(minLen) + " characters in length")
 		return false, errors.New(inputName + " should be at least " + toStr(minLen) + " characters in length")
 	}
-	print(inputName + " is valid via checkInput")
+	log1(inputName + " is valid via checkInput")
 	return true, nil
 }
 
@@ -596,7 +601,7 @@ func strSliceHasAny(s []string, e []string) bool {
 
 func getErr(errs []error) (int, error) {
 	for idx, err := range errs {
-		print(err)
+		logE.Println(err)
 		if err != nil {
 			return idx, err
 		}
@@ -607,7 +612,7 @@ func getErr(errs []error) (int, error) {
 // to log fatal error and stop execution
 func pExitErr(mesg string, err error) {
 	if err != nil {
-		print(mesg, err)
+		logE.Println(mesg, err)
 		os.Exit(1)
 	}
 }

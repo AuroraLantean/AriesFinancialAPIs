@@ -31,10 +31,6 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 			if EthereumNetwork != item.Network {
 				mesg = "reward contract network is different from current operating network"
 				log1(mesg)
-				// return &OutputLambda{
-				// 	Code: "000104",
-				// 	Mesg: mesg,
-				// }, nil
 			} else {
 				log1("found pool is on the same EthereumNetwork")
 			}
@@ -44,7 +40,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 		}
 	}
 	if !isRewardPoolFound {
-		log1("input token0, token1, sourceName are invalid")
+		logE.Println("input token0, token1, sourceName are invalid")
 		return &OutputLambda{
 			Code: "000104",
 			Mesg: "input token0, token1, sourceName are invalid",
@@ -67,7 +63,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	outputLambdaPt := &OutputLambda{}
 	rewardRate, totalSupply, err := getRewardsCtrtValues(addrRewardsPool, pool.Network)
 	if err != nil {
-		log1("getRewardsCtrtValues failed", err)
+		logE.Println("getRewardsCtrtValues failed", err)
 		return &OutputLambda{
 			Code: "000104",
 			Mesg: "err@ getRewardsCtrtValues",
@@ -75,6 +71,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	}
 	log1("rewardRate:", rewardRate, ", totalSupply:", totalSupply)
 	if len(totalSupply.Bits()) == 0 {
+		logE.Println("totalSupply is zero")
 		return &OutputLambda{
 			Code: "0",
 			Mesg: "totalSupply is zero",
@@ -86,7 +83,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	ampRWint := 100000
 	lpTokenData, err := getTokenData(lpTokenPriceSource, loadingTime)
 	if err != nil {
-		log1("err@ chromedpScraper lptokenPrice:", err)
+		logE.Println("err@ chromedpScraper lptokenPrice:", err)
 		lpTokenData = PairData{33.01, 873.1, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
@@ -106,7 +103,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	//-----------------== RW Token ... Get Token Price
 	rwTokenData, err := getTokenData(rwTokenPriceSource, loadingTime)
 	if err != nil {
-		log1("err@ chromedpScraper rwTokenPrice:", err)
+		logE.Println("err@ chromedpScraper rwTokenPrice:", err)
 		rwTokenData = PairData{33.02, 873.2, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
@@ -120,13 +117,14 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	rwPriceBI := float64ToBigInt(rwTokenPrice, ampRW64)
 	log1("rwPriceBI:", rwPriceBI)
 
-	log1("-----------==\n")
+	log1("-----------==")
 	log1("LIVE \nNetwork:", pool.Network)
 	log1("Pool name:", pool.Name)
 	log1("address of RewardsPool:", addrRewardsPool)
 	var TVL *big.Int
 	base, isOk := new(big.Int).SetString("1000000000000000000", 10)
 	if !isOk {
+		logE.Println("making 1e18 bigInt failed")
 		return &OutputLambda{
 			Code: "000105",
 			Mesg: "err@ initializing base 18 zeros as big int",
@@ -148,7 +146,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 		rwPriceBI = lpPriceBI
 
 	default:
-		log1("err@ pool.ID not found")
+		logE.Println("err@ pool.ID not found")
 		return &OutputLambda{
 			Code: "000105",
 			Mesg: "err@ pool.ID not found",
@@ -177,6 +175,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	log1("yearlyPriceAmp:", yearlyPriceAmp)
 
 	if len(TVL.Bits()) == 0 {
+		logE.Println("totalSupply is zero")
 		return &OutputLambda{
 			Code: "0",
 			Mesg: "totalSupply is zero",
@@ -199,6 +198,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	*/
 
 	if err != nil {
+		logE.Println("err exists")
 		return &OutputLambda{
 			Code: "000104",
 			Mesg: "mesg here",

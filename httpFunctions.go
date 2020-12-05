@@ -18,80 +18,80 @@ curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 
 
 // httpApyU ...
 func httpApyU(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpApyU")
+	logI.Println("---------------== httpApyU")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := apysUpdateColly(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err@ writeRowX")
+		logI.Println("\n====>>>> err@ writeRowX")
 	}
 
-	print("IsToScrape:", IsToScrape)
+	logI.Println("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 
 	// parse our response slice into JSON format
 	//b, err := json.Marshal(ss)
 	// if err != nil {
-	// 	print("err:", err)
+	// 	logI.Println("err:", err)
 	// }
 	//w.Write(b)
 }
 
 // httpAriesU ...
 func httpAriesU(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpAriesU")
+	logI.Println("---------------== httpAriesU")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := ariesU(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err@ writeRowX")
+		logI.Println("\n====>>>> err@ writeRowX")
 	}
 
-	print("IsToScrape:", IsToScrape)
+	logI.Println("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpGetApyAries ...
 func httpGetApyAries(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpGetApyAries")
+	logI.Println("---------------== httpGetApyAries")
 	RewardsPool := r.URL.Query().Get("rewardspool")
 	reqBody := ReqBody{RewardsPool: RewardsPool}
-	print("over to lambda function")
-	print("reqBody:", reqBody)
+	logI.Println("over to lambda function")
+	logI.Println("reqBody:", reqBody)
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := getApyAries(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err@ writeRowX")
+		logI.Println("\n====>>>> err@ writeRowX")
 	}
 
-	print("IsToScrape:", IsToScrape)
+	logI.Println("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
@@ -101,14 +101,14 @@ curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 
 */
 // httpApyReset ...
 func httpApyReset(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpApyReset")
+	logI.Println("---------------== httpApyReset")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 	sourceURL := reqBody.SourceURL
 
 	var dataName string
@@ -116,25 +116,25 @@ func httpApyReset(w http.ResponseWriter, r *http.Request) {
 	case sourceURL == "https://stats.finance/yearn":
 		dataName = "yearnFinance"
 	default:
-		print("sourceURL invalid:")
+		logE.Println("sourceURL invalid:")
 		return
 	}
 
 	apys := APYs{WETH: "0.01", AFI: "1.11", YFI: "2.22", CRV3: "3.33", CRVY: "4.44", CRVBUSD: "5.55", CRVSBTC: "6.66", DAI: "7.77", TrueUSD: "8.88", USDC: "9.99", Gemini: "10.00", TetherUSD: "11.11"}
-	print("------------== write to db")
+	logI.Println("------------== write to db")
 	inputLambda := InputLambda{Body: reqBody, DataName: dataName, APYboWeek: apys}
 	outputLambdaPt, err := apysUpdate(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	outputLambdaPt.Data = apys
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err@ writeRowX")
+		logI.Println("\n====>>>> err@ writeRowX")
 	}
 
-	print("IsToScrape:", IsToScrape)
+	logI.Println("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 
 }
@@ -148,147 +148,147 @@ curl -XPOST -d '{"EthereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' '
 */
 // httpCreateUser ...
 func httpCreateUser(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpCreateUser")
+	logI.Println("---------------== httpCreateUser")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := CreateUser(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpReadUser ...
 func httpReadUser(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpReadUser")
+	logI.Println("---------------== httpReadUser")
 	userID := r.URL.Query().Get("userID")
 	ethAddress := r.URL.Query().Get("ethAddress")
 	reqBody := ReqBody{EthereumAddr: ethAddress, UserID: userID}
-	print("over to lambda function")
-	print("reqBody:", reqBody)
+	logI.Println("over to lambda function")
+	logI.Println("reqBody:", reqBody)
 
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := ReadUser(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpRewardC ...
 func httpRewardC(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpRewardC")
+	logI.Println("---------------== httpRewardC")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := RewardC(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpRewardR ...
 func httpRewardR(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpRewardR")
+	logI.Println("---------------== httpRewardR")
 	userID := r.URL.Query().Get("userID")
 	vaultID := r.URL.Query().Get("vaultID")
 	rewardID := r.URL.Query().Get("rewardID")
 
 	reqBody := ReqBody{UserID: userID, VaultID: vaultID, RewardID: rewardID}
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := RewardR(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpRewardD ...
 func httpRewardD(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpRewardD")
+	logI.Println("---------------== httpRewardD")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := RewardD(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpVaultEthAddrR ...
 func httpVaultEthAddrR(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpVaultEthAddrR")
+	logI.Println("---------------== httpVaultEthAddrR")
 	vaultID := r.URL.Query().Get("vaultID")
 	reqBody := ReqBody{VaultID: vaultID}
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := VaultEthAddrR(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
@@ -301,27 +301,27 @@ curl -XPOST -d '{"EthereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' '
 */
 // httpDeleteUser ...
 func httpDeleteUser(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpDeleteUser")
+	logI.Println("---------------== httpDeleteUser")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := DeleteUser(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
@@ -334,75 +334,75 @@ curl -XPOST -d '{"EthereumAddr":"0x054f48Ae455dcf918F75bD28e8256Fd6fb02d27f"}' '
 */
 // httpUpdateUser ...
 func httpUpdateUser(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpUpdateUser")
+	logI.Println("---------------== httpUpdateUser")
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 
-	print("over to lambda function")
+	logI.Println("over to lambda function")
 	inputLambda := InputLambda{Body: reqBody}
 	outputLambdaPt, err := UpdateUser(inputLambda)
-	print("result:", outputLambdaPt)
+	logI.Println("result:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err from this lambda function")
+		logI.Println("\n====>>>> err from this lambda function")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpCreateUsers ...
 // func httpCreateUsers(w http.ResponseWriter, r *http.Request) {
-// 	print("---------------== httpCreateUsers")
+// 	logI.Println("---------------== httpCreateUsers")
 // 	var reqBody ReqBody
 // 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 // 	if err != nil {
-// 		print("json decode err:", err)
+// 		logI.Println("json decode err:", err)
 // 		return
 // 	}
-// 	print("reqBody:", reqBody)
+// 	logI.Println("reqBody:", reqBody)
 
-// 	print("over to lambda function")
+// 	logI.Println("over to lambda function")
 // 	inputLambda := InputLambda{Body: reqBody}
 // 	outputLambdaPt, err := UsersC(inputLambda)
-// 	print("result:", outputLambdaPt)
+// 	logI.Println("result:", outputLambdaPt)
 // 	if err != nil || outputLambdaPt.Mesg != "ok" {
-// 		print("\n====>>>> err from this lambda function")
+// 		logI.Println("\n====>>>> err from this lambda function")
 // 	}
 
 // 	w.Header().Set("Content-Type", "application/json")
 // 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 // 	if err != nil {
-// 		print("Error @ json.NewEncoder:", err)
+// 		logI.Println("Error @ json.NewEncoder:", err)
 // 	}
 // }
 
 // // httpReadUsers ...
 // func httpReadUsers(w http.ResponseWriter, r *http.Request) {
-// 	print("---------------== httpReadUsers")
+// 	logI.Println("---------------== httpReadUsers")
 // 	offset := r.URL.Query().Get("offset")
 // 	amount := r.URL.Query().Get("amount")
 
 // 	reqBody := ReqBody{Offset: offset, Amount: amount}
-// 	print("over to lambda function")
+// 	logI.Println("over to lambda function")
 // 	inputLambda := InputLambda{Body: reqBody}
 // 	outputLambdaPt, err := UsersR(inputLambda)
-// 	print("result:", outputLambdaPt)
+// 	logI.Println("result:", outputLambdaPt)
 // 	if err != nil || outputLambdaPt.Mesg != "ok" {
-// 		print("\n====>>>> err from this lambda function")
+// 		logI.Println("\n====>>>> err from this lambda function")
 // 	}
 
 // 	w.Header().Set("Content-Type", "application/json")
 // 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 // 	if err != nil {
-// 		print("Error @ json.NewEncoder:", err)
+// 		logI.Println("Error @ json.NewEncoder:", err)
 // 	}
 // }
 
@@ -415,11 +415,11 @@ curl -v 'localhost:3000/httpApyR?sourceURL=https://stats.finance/yearn&perfPerio
 
 // httpApyR ...
 func httpApyR(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpApyR")
+	logI.Println("---------------== httpApyR")
 	// query := r.URL.Query()
 	// sourceURL := query.Get("sourceURL")
 	// perfPeriod := query.Get("perfPeriod")
-	// print("sourceURL:", sourceURL, ", perfPeriod:", perfPeriod)
+	// logI.Println("sourceURL:", sourceURL, ", perfPeriod:", perfPeriod)
 	sourceURL := "https://stats.finance/yearn"
 	perfPeriod := "week"
 	w.Header().Set("Content-Type", "application/json")
@@ -429,14 +429,14 @@ func httpApyR(w http.ResponseWriter, r *http.Request) {
 	case sourceURL == "https://stats.finance/yearn":
 		dataName = "yearnFinance"
 	default:
-		print("sourceURL invalid:")
+		logI.Println("sourceURL invalid:")
 		outputLambdaPt := &OutputLambda{
 			Code: "000320",
 			Mesg: "sourceURL invalid",
 		}
 		err := json.NewEncoder(w).Encode(*outputLambdaPt)
 		if err != nil {
-			print("Error @ json.NewEncoder:", err)
+			logE.Println("Error @ json.NewEncoder:", err)
 		}
 		return
 	}
@@ -445,11 +445,11 @@ func httpApyR(w http.ResponseWriter, r *http.Request) {
 	inputLambda := InputLambda{Body: reqBody, DataName: dataName}
 	//authHeader, updatedAt
 
-	print("------------==")
+	logI.Println("------------==")
 	vaultApySlicePtr, err := readLambda(inputLambda)
-	print("readLambda result:", vaultApySlicePtr)
+	logI.Println("readLambda result:", vaultApySlicePtr)
 	if err != nil {
-		print("\n===> err@ readLambda, err:", err)
+		logE.Println("\n===> err@ readLambda, err:", err)
 		outputLambdaPt := &OutputLambda{
 			Code: "000321",
 			Mesg: "err@ readLambda",
@@ -457,82 +457,82 @@ func httpApyR(w http.ResponseWriter, r *http.Request) {
 		}
 		err := json.NewEncoder(w).Encode(*outputLambdaPt)
 		if err != nil {
-			print("Error @ json.NewEncoder:", err)
+			logE.Println("Error @ json.NewEncoder:", err)
 		}
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(*vaultApySlicePtr)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpApyC ...
 func httpApyC(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpApyC")
+	logI.Println("---------------== httpApyC")
 	// query := r.URL.Query()
 	// rowName := query.Get("rowname")
-	// print("rowName: " + rowName)
+	// logI.Println("rowName: " + rowName)
 
 	var reqBody ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		print("json decode err:", err)
+		logE.Println("json decode err:", err)
 		return
 	}
-	print("reqBody:", reqBody)
+	logI.Println("reqBody:", reqBody)
 	inputLambda := InputLambda{Body: reqBody}
 	//authHeader, updatedAt
 
-	print("------------== write to db")
+	logI.Println("------------== write to db")
 	outputLambdaPt, err := addRowDB(inputLambda)
-	print("addRowDB outputLambdaPt:", outputLambdaPt)
+	logI.Println("addRowDB outputLambdaPt:", outputLambdaPt)
 	if err != nil || outputLambdaPt.Mesg != "ok" {
-		print("\n====>>>> err@ writeRowX")
+		logI.Println("\n====>>>> err@ writeRowX")
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
-		print("Error @ json.NewEncoder:", err)
+		logI.Println("Error @ json.NewEncoder:", err)
 	}
 }
 
 // httpRowD ...
 func httpRowD(w http.ResponseWriter, r *http.Request) {
-	print("---------------== httpRowD")
+	logI.Println("---------------== httpRowD")
 }
 
 func getAPIx(w http.ResponseWriter, r *http.Request) {
-	print("---------------== getAPIx")
+	logI.Println("---------------== getAPIx")
 	// offset := r.URL.Query().Get("offset")
 	// amount := r.URL.Query().Get("amount")
 
 	// reqBody := ReqBody{Offset: offset, Amount: amount}
-	// print("over to lambda function")
+	// logI.Println("over to lambda function")
 	// inputLambda := InputLambda{Body: reqBody}
 	// outputLambdaPt, err := UsersR(inputLambda)
-	// print("result:", outputLambdaPt)
+	// logI.Println("result:", outputLambdaPt)
 	// if err != nil || outputLambdaPt.Mesg != "ok" {
-	// 	print("\n====>>>> err from this lambda function")
+	// 	logI.Println("\n====>>>> err from this lambda function")
 	//}
 
 	// w.Header().Set("Content-Type", "application/json")
 	// err := json.NewEncoder(w).Encode(*anChainOutPt)
 	// if err != nil {
-	// 	print("Error @ json.NewEncoder:", err)
+	// 	logI.Println("Error @ json.NewEncoder:", err)
 	// }
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
-	print("Ping")
+	logI.Println("Ping")
 	testDB()
 	w.Write([]byte("ping"))
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
-	print("root")
+	logI.Println("root")
 	w.Write([]byte("root"))
 }
 

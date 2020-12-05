@@ -27,6 +27,9 @@ var IsProduction = true // then set c value in the switch
 // IsToScrape ...
 var IsToScrape = true
 
+// IsToRunFunc1 ...
+var IsToRunFunc1 = 1
+
 // isServerON ...
 var isServerON = true
 
@@ -42,16 +45,13 @@ var EthereumNetwork = ""
 //Cfg ...
 var Cfg Config
 
-//WarningLogger ...
-var (
-	WarningLogger *log.Logger
-	InfoLogger    *log.Logger
-	logE   *log.Logger
-)
+var logW *log.Logger
+var logI *log.Logger
+var logE *log.Logger
 
 // log1 ... to print logs
 var log1 = log.Println
-var logE2 = logE.Println
+//var logE2 = logE.Println
 
 func init() {
 	//-------------------== Initial Conditions
@@ -63,41 +63,45 @@ func init() {
 	log.SetOutput(file)
 	//log2 := log.Lshortfile
 
-	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	logI = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	logW = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	logE = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 
-	InfoLogger.Println("Something noteworthy happened")
-	WarningLogger.Println("There is something you should know about")
-	logE.Println("Something went wrong")
+	// logI.Println("Something noteworthy happened")
+	// logW.Println("There is something you should know about")
+	// logE.Println("Something went wrong")
 	//
 
 	//-------------------==
 	isEnvOk := loadEnv()
 	if isEnvOk != "ok" {
-		print("isEnvOk:", isEnvOk)
+		logE.Println("isEnvOk:", isEnvOk)
 		return
 	}
 
-	IsProduction = os.Getenv("ISPRODUCTION") == "1"
-	IsToScrape = os.Getenv("ISTOSCRAPE") == "1"
+	//IsProduction = os.Getenv("ISPRODUCTION") == "1"
+	//IsToScrape = os.Getenv("ISTOSCRAPE") == "1"
+	IsToScrape = 1 == 1
+	IsToRunFunc1 = 0
+	IsProduction = 1 == 1
 
 	err = cleanenv.ReadConfig("config.yml", &Cfg)
 	if err != nil {
-		print("reading config file failed")
+		logE.Println("reading config file failed")
 		return
 	}
-	//print("Cfg:", Cfg)
+	//logE.Println("Cfg:", Cfg)
 	EthereumNetwork = Cfg.EthereumNetwork.Name
 }
 
 func main() {
 	port := ":" + os.Getenv("SERVER_PORT")
 	if port == ":" {
-		print("SERVER_PORT in .env is empty")
+		logE.Println("SERVER_PORT in .env is empty")
 		return
 	}
 	print("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
+	log1("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 
 	//-------------------== Routers
 	router := mux.NewRouter()
@@ -225,7 +229,7 @@ func main() {
 		print("ourAPYbf:", ourAPYbf)
 	}
 
-	if 1 == 2 {
+	if IsToRunFunc1 == 1 {
 		choice := 12
 		var addrRewardsPool string
 		switch choice {
@@ -270,6 +274,7 @@ func main() {
 
 	//print("\nport"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 	print("listening on", port)
+	log1("listening on", port)
 	if isServerON {
 		log.Fatal(http.ListenAndServe(port, router))
 	}
