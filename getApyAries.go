@@ -51,12 +51,13 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	lpTokenPriceSource := pool.LpTokenPriceSource
 	totalLiquiditySource := pool.TotalLiquiditySource
 	rwTokenPriceSource := pool.RwTokenPriceSorce
+	loadingTime := pool.LoadingTime
+	decimalPlace := pool.DecimalPlace
 	log1("addrRewardsPool:", addrRewardsPool)
 	log1("lpTokenPriceSource:", lpTokenPriceSource)
 	log1("totalLiquiditySource:", totalLiquiditySource)
 	log1("rwTokenPriceSource:", rwTokenPriceSource)
-
-	loadingTime := pool.LoadingTime
+	log1("decimalPlace:", decimalPlace)
 	log1("loadingTime:", loadingTime)
 
 	//---------------== Get RewardRate and totalSupply
@@ -84,7 +85,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	lpTokenData, err := getTokenData(lpTokenPriceSource, loadingTime)
 	if err != nil {
 		logE.Println("err@ chromedpScraper lptokenPrice:", err)
-		lpTokenData = PairData{33.01, 873.1, 0, 0, 0}
+		lpTokenData = PairData{1.01, 873.1, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
 		// 	Mesg: "err@ chromedpScraper lpTokenPrice",
@@ -104,7 +105,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	rwTokenData, err := getTokenData(rwTokenPriceSource, loadingTime)
 	if err != nil {
 		logE.Println("err@ chromedpScraper rwTokenPrice:", err)
-		rwTokenData = PairData{33.02, 873.2, 0, 0, 0}
+		rwTokenData = PairData{1.02, 873.2, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
 		// 	Mesg: "err@ chromedpScraper rwTokenPrice",
@@ -118,18 +119,10 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	log1("rwPriceBI:", rwPriceBI)
 
 	log1("-----------==")
-	log1("LIVE \nNetwork:", pool.Network)
+	log1("LIVE Network on", pool.Network)
 	log1("Pool name:", pool.Name)
 	log1("address of RewardsPool:", addrRewardsPool)
 	var TVL *big.Int
-	base, isOk := new(big.Int).SetString("1000000000000000000", 10)
-	if !isOk {
-		logE.Println("making 1e18 bigInt failed")
-		return &OutputLambda{
-			Code: "000105",
-			Mesg: "err@ initializing base 18 zeros as big int",
-		}, nil
-	}
 	switch pool.ID {
 	case "001", "002": //AFI Governance Pool
 		log1("use TVL = totalStakedAmount * lpTokenPrice")
@@ -138,11 +131,30 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 
 	case "011": // UniLP_USDC_AFI Pool
 		log1("use TVL = totalLiquidity")
+		base, isOk := new(big.Int).SetString("1000000000000000000", 10)
+		if !isOk {
+			logE.Println("making 1e18 bigInt failed")
+			return &OutputLambda{
+				Code: "000105",
+				Mesg: "err@ initializing base 18 zeros as big int",
+			}, nil
+		}
 		TVL = new(big.Int).Mul(base, lpTotalLiquidityBI)
 
 	case "021", "031": // afUSDC, afUSDT pool
+		log1("pool ID =", pool.ID,"... uses 6 decimal places!")
 		log1("use TVL = totalStakedAmount * lpTokenPrice")
-		TVL = new(big.Int).Mul(totalSupply, lpPriceBI)
+		TVL1 := new(big.Int).Mul(totalSupply, lpPriceBI)
+
+		base, isOk := new(big.Int).SetString("1000000000000", 10)
+		if !isOk {
+			logE.Println("making 1e12 bigInt failed")
+			return &OutputLambda{
+				Code: "000105",
+				Mesg: "err@ initializing base 6 zeros as big int",
+			}, nil
+		}
+		TVL = new(big.Int).Mul(TVL1, base)
 		rwPriceBI = lpPriceBI
 
 	default:
@@ -193,8 +205,8 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	log1("APY3bf:", APY3bf)
 
 	/*
-		  totalStakedAmountInPool for each pool = total iquidity per pair.	totalStakedAmountInPool is the amount of LP token staked in that pool
-					weeklyReward is the total weekly reward token number for that pool
+	totalStakedAmountInPool for each pool = total iquidity per pair.totalStakedAmountInPool is the amount of LP token staked in that pool
+	weeklyReward is the total weekly reward token number for that pool
 	*/
 
 	if err != nil {

@@ -43,7 +43,13 @@ $ git clone https://github.com/aries-financial-defi/AriesFinancialAPIs.git  <br>
 $ go mod tidy
 
 ## Run the API server
-$ ./goRun.sh
+$ ./run.sh
+
+## Zip binary and config and .env file
+$ ./goZip.sh
+
+## Clean log file:
+$ ./goClean.sh
 
 ## Only build(produce an executable file)
 For Linux 64 bit target environment(for example: AWS EC2): 

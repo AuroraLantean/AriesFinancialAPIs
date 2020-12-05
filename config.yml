@@ -13,6 +13,7 @@ RewardsPools:
     totalLiquiditySource: ""
     loadingTime: 8
     rwTokenPriceSource: ""
+    decimalPlace: 18
   - id: "002"
     name: "AFI_Governance"
     network: "mainnet"
@@ -23,6 +24,7 @@ RewardsPools:
     totalLiquiditySource: ""
     loadingTime: 8
     rwTokenPriceSource: ""
+    decimalPlace: 18
   - id: "011"
     name: "UniLP_USDC_AFI"
     network: "mainnet"
@@ -33,6 +35,7 @@ RewardsPools:
     totalLiquiditySource: ""
     loadingTime: 8
     rwTokenPriceSource: ""
+    decimalPlace: 6
   - id: "021"
     name: "afUSDC"
     network: "mainnet"
@@ -53,3 +56,4 @@ RewardsPools:
     totalLiquiditySource: ""
     loadingTime: 8
     rwTokenPriceSource: ""
+    decimalPlace: 6

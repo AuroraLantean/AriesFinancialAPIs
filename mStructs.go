@@ -12,8 +12,9 @@ type RewardsPool struct {
 	RewardsCtrt          string `yaml:"rewardsCtrt"`
 	LpTokenPriceSource   string `yaml:"lpTokenPriceSource"`
 	TotalLiquiditySource string `yaml:"totalLiquiditySource"`
-	LoadingTime          int    `yaml:"loadingTime"`
 	RwTokenPriceSorce    string `yaml:"rwTokenPriceSource"`
+	LoadingTime          int    `yaml:"loadingTime"`
+	DecimalPlace         int    `yaml:"decimalPlace"`
 }
 
 // Config ... configuration file
@@ -31,8 +32,9 @@ type Config struct {
 		RewardsCtrt          string `yaml:"rewardsCtrt"`
 		LpTokenPriceSource   string `yaml:"lpTokenPriceSource"`
 		TotalLiquiditySource string `yaml:"totalLiquiditySource"`
-		LoadingTime          int    `yaml:"loadingTime"`
 		RwTokenPriceSorce    string `yaml:"rwTokenPriceSource"`
+		LoadingTime          int    `yaml:"loadingTime"`
+		DecimalPlace         int    `yaml:"decimalPlace"`
 	} `yaml:"RewardsPools"`
 }
 

@@ -51,6 +51,7 @@ var logE *log.Logger
 
 // log1 ... to print logs
 var log1 = log.Println
+
 //var logE2 = logE.Println
 
 func init() {
@@ -230,19 +231,29 @@ func main() {
 	}
 
 	if IsToRunFunc1 == 1 {
-		choice := 12
+		choice := 21
 		var addrRewardsPool string
 		switch choice {
 		case 1:
 			addrRewardsPool = "0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6"
-
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6
+			curl 'localhost:3000/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6' | jq
+			*/
 		case 11:
 			addrRewardsPool = "0x9cd43309c9e122a13b466391babc5dec8be1e01e"
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0x9cd43309c9e122a13b466391babc5dec8be1e01e
+			curl 'localhost:3000/ariesapy?rewardspool=0x9cd43309C9E122A13b466391bABC5deC8bE1E01E' | jq
+			*/
 		case 12:
 			addrRewardsPool = "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6
+			curl 'localhost:3000/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6' | jq
+			*/
 		case 21:
 			addrRewardsPool = "0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C"
-
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C
+			curl 'localhost:3000/ariesapy?rewardspool=0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C' | jq
+			*/
 		case 31:
 			addrRewardsPool = "0x825241bA78700c11a4615523dF4B70F78C7384aa"
 		}
@@ -261,14 +272,7 @@ func main() {
 		print("addrRewardsPool:", addrRewardsPool)
 		print("IsToScrape:", IsToScrape)
 	} /*
-		curl 'localhost:3000/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6' | jq
 		-------==
-
-		curl 'localhost:3000/ariesapy?rewardspool=0x9cd43309C9E122A13b466391bABC5deC8bE1E01E' | jq
-
-		curl 'localhost:3000/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6' | jq
-
-		curl 'localhost:3000/ariesapy?rewardspool=0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C' | jq
 		curl 'localhost:3000/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa' | jq
 	*/
 
