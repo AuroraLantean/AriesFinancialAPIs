@@ -42,31 +42,62 @@ var EthereumNetwork = ""
 //Cfg ...
 var Cfg Config
 
-func main() {
+//WarningLogger ...
+var (
+	WarningLogger *log.Logger
+	InfoLogger    *log.Logger
+	logE   *log.Logger
+)
+
+// log1 ... to print logs
+var log1 = log.Println
+var logE2 = logE.Println
+
+func init() {
 	//-------------------== Initial Conditions
+	// append to the file or make a new file
+	file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.SetOutput(file)
+	//log2 := log.Lshortfile
+
+	InfoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
+	WarningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
+	logE = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	InfoLogger.Println("Something noteworthy happened")
+	WarningLogger.Println("There is something you should know about")
+	logE.Println("Something went wrong")
+	//
+
+	//-------------------==
 	isEnvOk := loadEnv()
 	if isEnvOk != "ok" {
-		print(isEnvOk)
-		return
-	}
-
-	port := ":" + os.Getenv("SERVER_PORT")
-	if port == ":" {
-		print("SERVER_PORT in .env is empty")
+		print("isEnvOk:", isEnvOk)
 		return
 	}
 
 	IsProduction = os.Getenv("ISPRODUCTION") == "1"
 	IsToScrape = os.Getenv("ISTOSCRAPE") == "1"
-	print("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 
-	err := cleanenv.ReadConfig("config.yml", &Cfg)
+	err = cleanenv.ReadConfig("config.yml", &Cfg)
 	if err != nil {
 		print("reading config file failed")
 		return
 	}
 	//print("Cfg:", Cfg)
 	EthereumNetwork = Cfg.EthereumNetwork.Name
+}
+
+func main() {
+	port := ":" + os.Getenv("SERVER_PORT")
+	if port == ":" {
+		print("SERVER_PORT in .env is empty")
+		return
+	}
+	print("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 
 	//-------------------== Routers
 	router := mux.NewRouter()
@@ -195,7 +226,7 @@ func main() {
 	}
 
 	if 1 == 2 {
-		choice := 31
+		choice := 12
 		var addrRewardsPool string
 		switch choice {
 		case 1:

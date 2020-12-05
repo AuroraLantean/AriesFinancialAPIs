@@ -29,9 +29,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Log1 ... to print logs
-//var Log1 = log.Println
-
 // print1 ... to print logs
 var print = fmt.Println
 

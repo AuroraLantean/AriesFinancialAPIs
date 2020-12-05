@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -29,7 +28,7 @@ see scraper function description below
 @param  in: account
 */
 func collyScraper(URL string, pattern string) ([]string, error) {
-	print("---------------== collyScraper()")
+	log1("---------------== collyScraper()")
 	//Create a new collector which will be in charge of collect the data from HTML
 	c := colly.NewCollector()
 
@@ -37,10 +36,10 @@ func collyScraper(URL string, pattern string) ([]string, error) {
 	var response []string
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
+		log1("Visiting", r.URL)
 	})
 	// c.OnResponseHeaders(func(r *colly.Response) {
-	// 	fmt.Println("Visited", r.Request.URL)
+	// 	log1("Visited", r.Request.URL)
 	// })
 
 	//<table class="MuiTable-root">
@@ -61,7 +60,7 @@ func collyScraper(URL string, pattern string) ([]string, error) {
 	*/
 
 	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("c.OnError(): Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		log1("c.OnError(): Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
 	//Command to visit the website
@@ -122,7 +121,7 @@ func fetchCoinMarketCap() ([]byte, error) {
 }*/
 
 func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]string, error) {
-	print("---------------== chromedpScraper()")
+	log1("---------------== chromedpScraper()")
 	if isToScrape {
 		ctx, cancel := chromedp.NewContext(
 			context.Background(),
@@ -134,13 +133,13 @@ func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]stri
 		defer cancel()
 
 		var text1, text2 string
-		print("run chromedp")
+		log1("run chromedp")
 		err := chromedp.Run(ctx,
 			chromedp.Navigate(targetURL),
 			// wait for element is visible(loaded)
 			chromedp.WaitVisible(`body > #root`),
 			chromedp.ActionFunc(func(context.Context) error {
-				print("waiting x seconds...")
+				log1("waiting x seconds...")
 				return nil
 			}),
 			chromedp.Sleep(time.Duration(loadingTime)*time.Second),
@@ -153,25 +152,25 @@ func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]stri
 
 		#center > div > div.sc-kkGfuU.cDHqtk > div.sc-iQNlJl.fDoXeo > div > div.sc-ifAKCX.sc-bZQynM.sc-dnqmqq.feLJDb > div:nth-child(1) > div > div.sc-bdVaJa.KpMoH.css-flugrv
 		*/
-		print("text1:", text1, ", text2:", text2)
+		log1("text1:", text1, ", text2:", text2)
 		if len(text2) > 2 {
 			text2 = strings.TrimSpace(text2)[2:]
 		}
-		print("chromedpScraper is successful")
+		log1("chromedpScraper is successful")
 		return []string{strings.TrimSpace(text1), text2}, err
 	}
-	print("isToScrape is false")
+	log1("isToScrape is false")
 	return []string{"$1022.03", "AFI = 33.00001 USDC"}, nil
 }
 
 func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, error) {
-	print("-----------== doChromedpAndRegexp()")
+	log1("-----------== doChromedpAndRegexp()")
 	regexpStr := `[-+]?[0-9]*\.?[0-9]+`
 	pairData := PairData{}
 	var ss []string
 	var err error
 	if tokenPriceSource == "" || loadingTime <= 0 {
-		print("input invalid")
+		log1("input invalid")
 		return pairData, nil
 	}
 	ss, err = chromedpScraper(tokenPriceSource, loadingTime, IsToScrape)
@@ -179,7 +178,7 @@ func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, er
 		return pairData, err
 	}
 
-	print("scraper output:", ss)
+	log1("scraper output:", ss)
 	pairData, err = doregexp2FindInBtw(ss, regexpStr)
 	if err != nil {
 		return pairData, err
@@ -188,12 +187,12 @@ func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, er
 }
 
 func getTokenData(tokenPriceSource string, loadingTime int) (PairData, error) {
-	print("-----------== getTokenPairData()")
+	log1("-----------== getTokenPairData()")
 	var tokenPrice float64 = 1.00001
 	var totalLiquidity float64 = 1020.01
 
 	if tokenPriceSource == "" {
-		print("no tokenPriceSource... use default tokenPrice and totalLiquidity...")
+		log1("no tokenPriceSource... use default tokenPrice and totalLiquidity...")
 		return PairData{
 			Price:          tokenPrice,
 			TotalLiquidity: totalLiquidity,
