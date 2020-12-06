@@ -5,6 +5,7 @@ package main
 */
 
 import (
+	"fmt"
 	"log"
 	"math/big"
 	"net/http"
@@ -48,11 +49,28 @@ var Cfg Config
 var logW *log.Logger
 var logI *log.Logger
 var logE *log.Logger
-
 // log1 ... to print logs
-var log1 = log.Println
-
 //var logE2 = logE.Println
+
+// LogMode ...
+var LogMode = 1
+
+func log1(v ...interface{}) {
+	switch LogMode {
+	case 0:
+		fmt.Println(v...)
+	case 1:
+		log.Println(v...)
+	case 2:
+		logI.Println(v...)
+	case 3:
+		logW.Println(v...)
+	case 4:
+		logE.Println(v...)
+	default:
+		fmt.Println(v...)
+	}
+}
 
 func init() {
 	//-------------------== Initial Conditions
@@ -83,6 +101,7 @@ func init() {
 	//IsProduction = os.Getenv("ISPRODUCTION") == "1"
 	//IsToScrape = os.Getenv("ISTOSCRAPE") == "1"
 	IsToScrape = 1 == 1
+	LogMode = 1 //dev: 0, log1: 1
 	IsToRunFunc1 = 0
 	IsProduction = 1 == 1
 
@@ -101,9 +120,21 @@ func main() {
 		logE.Println("SERVER_PORT in .env is empty")
 		return
 	}
-	print("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 	log1("port"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
-
+	switch LogMode {
+	case 0:
+		log1("log in consoles")
+	case 1:
+		log1("use log file")
+	case 2:
+		log1("use log file with Info")
+	case 3:
+		log1("use log file with Warning")
+	case 4:
+		log1("use log file with Error")
+	default:
+		log1("log in consoles")
+	}
 	//-------------------== Routers
 	router := mux.NewRouter()
 	router.HandleFunc("/member", httpCreateUser).Methods("POST")
@@ -128,6 +159,8 @@ func main() {
 	router.HandleFunc("/ariesapy", httpGetApyAries).Methods("GET")
 	router.HandleFunc("/ariesapy", httpAriesU).Methods("PUT")
 
+	router.HandleFunc("/cors", httpCorsGet).Methods("GET")
+	router.HandleFunc("/cors", httpCorsPost).Methods("POST")
 	router.HandleFunc("/ping", ping).Methods("GET")
 	router.HandleFunc("/", root).Methods("GET")
 	/*
@@ -277,7 +310,6 @@ func main() {
 	*/
 
 	//print("\nport"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
-	print("listening on", port)
 	log1("listening on", port)
 	if isServerON {
 		log.Fatal(http.ListenAndServe(port, router))

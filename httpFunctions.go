@@ -35,6 +35,8 @@ func httpApyU(w http.ResponseWriter, r *http.Request) {
 
 	log1("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -67,6 +69,8 @@ func httpAriesU(w http.ResponseWriter, r *http.Request) {
 
 	log1("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -89,11 +93,54 @@ func httpGetApyAries(w http.ResponseWriter, r *http.Request) {
 
 	log1("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
+	//Allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
 	}
 }
+
+func httpCorsGet(w http.ResponseWriter, r *http.Request) {
+	log1("---------------== httpCorsGet")
+	outputLambdaPt := &OutputLambda{
+		Code: "0",
+		Mesg: "ok",
+		Data: "123.4567",
+	}
+	log1("result:", outputLambdaPt)
+	w.Header().Set("Content-Type", "application/json")
+	//Allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	//Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+  
+	//json.NewEncoder(w).Encode("OKOK")
+	err := json.NewEncoder(w).Encode(*outputLambdaPt)
+	if err != nil {
+		logE.Println("Error @ json.NewEncoder:", err)
+	}
+}
+
+func httpCorsPost(w http.ResponseWriter, r *http.Request) {
+	log1("---------------== httpCorsPost")
+	outputLambdaPt := &OutputLambda{
+		Code: "0",
+		Mesg: "ok",
+		Data: "123.4567",
+	}
+	log1("result:", outputLambdaPt)
+	w.Header().Set("Content-Type", "application/json")
+	//Allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	err := json.NewEncoder(w).Encode(*outputLambdaPt)
+	if err != nil {
+		logE.Println("Error @ json.NewEncoder:", err)
+	}
+}
+
 
 /*
 curl -XPUT -d '{"sourceURL":"https://stats.finance/yearn","perfPeriod":"week"}' 'localhost:3000/httpApyReset'
@@ -132,6 +179,8 @@ func httpApyReset(w http.ResponseWriter, r *http.Request) {
 
 	log1("IsToScrape:", IsToScrape)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -166,6 +215,8 @@ func httpCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -190,6 +241,8 @@ func httpReadUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -216,6 +269,8 @@ func httpRewardC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -239,6 +294,8 @@ func httpRewardR(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -265,6 +322,8 @@ func httpRewardD(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -286,6 +345,8 @@ func httpVaultEthAddrR(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -319,6 +380,8 @@ func httpDeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -352,6 +415,8 @@ func httpUpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -423,6 +488,8 @@ func httpApyR(w http.ResponseWriter, r *http.Request) {
 	sourceURL := "https://stats.finance/yearn"
 	perfPeriod := "week"
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	var dataName string
 	switch {
@@ -493,6 +560,8 @@ func httpApyC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	err = json.NewEncoder(w).Encode(*outputLambdaPt)
 	if err != nil {
 		logE.Println("Error @ json.NewEncoder:", err)
@@ -528,11 +597,17 @@ func getAPIx(w http.ResponseWriter, r *http.Request) {
 func ping(w http.ResponseWriter, r *http.Request) {
 	log1("Ping")
 	testDB()
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Write([]byte("ping"))
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
 	log1("root")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Write([]byte("root"))
 }
 
