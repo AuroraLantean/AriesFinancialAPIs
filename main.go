@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/ilyakaznacheev/cleanenv"
@@ -29,7 +30,7 @@ var IsProduction = true // then set c value in the switch
 var IsToScrape = true
 
 // IsToRunFunc1 ...
-var IsToRunFunc1 = 1
+var IsToRunFunc1 = 0
 
 // MaxRiskScore ...
 var MaxRiskScore = 90
@@ -69,6 +70,12 @@ func log1(v ...interface{}) {
 		fmt.Println(v...)
 	}
 }
+
+// RwTokenPriceFake ...
+var RwTokenPriceFake = float64(846.06242)
+
+// RwTokenTotalLiquidityFake ...
+var RwTokenTotalLiquidityFake = float64(4552)
 
 func init() {
 	//-------------------== Initial Conditions
@@ -137,22 +144,10 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/member", httpCreateUser).Methods("POST")
 	router.HandleFunc("/member", httpReadUser).Methods("GET")
-	//router.HandleFunc("/member", httpUpdateUser).Methods("PUT")
-	//router.HandleFunc("/member", httpDeleteUser).Methods("DELETE")
-
-	// router.HandleFunc("/securities", httpCreateUsers).Methods("POST")
-	// router.HandleFunc("/securities", httpReadUsers).Methods("GET")
 
 	router.HandleFunc("/reward", httpRewardC).Methods("POST")
 	router.HandleFunc("/reward", httpRewardR).Methods("GET")
 	router.HandleFunc("/reward", httpRewardD).Methods("DELETE")
-
-	//router.HandleFunc("/vaultethaddr", httpVaultEthAddrR).Methods("GET")
-
-	// router.HandleFunc("/aries10", httpApyC).Methods("POST")
-	// router.HandleFunc("/aries10", httpApyR).Methods("GET")
-	// router.HandleFunc("/aries10reset", httpApyReset).Methods("PUT")
-	// router.HandleFunc("/aries10", httpApyU).Methods("PUT")
 
 	router.HandleFunc("/ariesapy", httpGetApyAries).Methods("GET")
 	router.HandleFunc("/ariesapy", httpAriesU).Methods("PUT")
@@ -167,115 +162,17 @@ func main() {
 			tokenVerifyMiddleWare(ctr.ProtectedEndpoint())).Methods("GET") // validate token > run middleware func
 	*/
 
-	if 99 == 0 {
-		dataName := "AFI"
-		subgraphName := "uniswapV2"
-		graphqlOut, mesg := DoCallGraphQLAPI(dataName, subgraphName)
-		if mesg != "ok" {
-			print(mesg)
-			return
-		}
-		pairData := graphqlOut.Data.UniSwapPairData
-		token1Price := pairData.Token1Price
-		uniSwapToken1 := pairData.UniSwapToken1
-		totalLiquitidy1 := uniSwapToken1.TotalLiquidity
-		print("token1Price:", token1Price, ", totalLiquitidy1:", totalLiquitidy1)
-		bitSize := 64
-		if f, err := strconv.ParseFloat(token1Price, bitSize); err == nil {
-			print("float type:", f) // bitSize is 32 for float32 convertible, 64 for float64
-		} else {
-			print(err)
-		}
-
-	}
-	if 99 == 1 {
-		// proto := "btc"
-		// bcAddr := "12t9YDPgwueZ9NyMgw519p7AA8isjr6SMw"
-
-		bcAddr := "0x304a554a310c7e546dfe434669c62820b7d83490" //dao hacker with no score
-		msgOut := DoCallAnChainAPI("eth", bcAddr)
-		if msgOut != "ok" {
-			return
-		}
-	}
-	if 0 == 2 {
-		reqBody := ReqBody{
-			SourceName: "uniswap",
-			Token0:     "afi",
-			Token1:     "usdc",
-		}
-		inputLambda := InputLambda{
-			Body: reqBody,
-		}
-		outputLambdaPt, err := ariesU(inputLambda)
-		print("result:", outputLambdaPt)
-		if err != nil || outputLambdaPt.Mesg != "ok" {
-			print("\n====>>>> err@ writeRowX")
-		}
-		print("IsToScrape:", IsToScrape)
-	}
-
-	if 99 == 5 {
-		sourceURL := "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
-		loadingTime := 7
-		regexpStr := `[-+]?[0-9]*\.?[0-9]+`
-		ss, err := chromedpScraper(sourceURL, loadingTime, IsToScrape)
-		if err != nil {
-			log.Fatal(err)
-		}
-		print("scraper output:", ss)
-		print("chromedpScraper is successful")
-		for idx, v := range ss {
-			print("idx", idx, ":", v)
-			out, err := regexp2FindInBtw(v, regexpStr)
-			if err != nil {
-				print("err:", err)
-			}
-			print("out:", out)
-		}
-		//print("outerHTML1:", strings.TrimSpace(outerHTML1))
-		//<div class="sc-bdVaJa KpMoH css-9on69b">$10.39</div>
-	}
-	if 1 == 2 {
-		//setupEthereum()
-		rewardsPool := "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
-		rewardRate, totalSupply, err := getRewardsCtrtValues(rewardsPool, "mainnet")
-		if err != nil {
-			print("setupEthereum failed")
-			os.Exit(1)
-		}
-		print("rewardRate:", rewardRate, ", totalSupply:", totalSupply)
-	}
-	if 1 == 2 {
-		tokenPrice := float64(33.00001)
-		mag := int64(100000)
-		tokenPriceBI := float64ToBigInt(tokenPrice, mag)
-		print("tokenPriceBI:", tokenPriceBI)
-
-		maginfierBF := big.NewFloat(1000000)
-		var ourAPYbn, _ = new(big.Int).SetString("547040", 10)
-		print("ourAPYbn:", ourAPYbn)
-		ourAPYf := new(big.Float).SetInt(ourAPYbn)
-		print("ourAPYf:", ourAPYf)
-		ourAPYbf := new(big.Float).Quo(ourAPYf, maginfierBF)
-		print("ourAPYbf:", ourAPYbf)
-	}
-
+	//-------------------== test functions
 	if IsToRunFunc1 == 1 {
 		choice := 41
 		var addrRewardsPool string
 		switch choice {
-		case 1:
-			addrRewardsPool = "0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6"
-			/*https://af-api.aries.financial/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6
-			curl 'localhost:3000/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6' | jq
-			*/
-		case 11:
+		case 1: // mainnet
 			addrRewardsPool = "0x9cd43309c9e122a13b466391babc5dec8be1e01e"
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0x9cd43309c9e122a13b466391babc5dec8be1e01e
 			curl 'localhost:3000/ariesapy?rewardspool=0x9cd43309C9E122A13b466391bABC5deC8bE1E01E' | jq
 			*/
-		case 12:
+		case 11:
 			addrRewardsPool = "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6
 			curl 'localhost:3000/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6' | jq
@@ -287,6 +184,9 @@ func main() {
 			*/
 		case 31:
 			addrRewardsPool = "0x825241bA78700c11a4615523dF4B70F78C7384aa"
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa
+			curl 'localhost:3000/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa' | jq
+			*/
 		case 41:
 			addrRewardsPool = "0x8667D16150AcAA1FF19AcC5E5c64Bf0Ba1d551b3"
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0x8667D16150AcAA1FF19AcC5E5c64Bf0Ba1d551b3
@@ -314,6 +214,102 @@ func main() {
 		curl 'localhost:3000/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa' | jq
 	*/
 
+	if IsToRunFunc1 == 2 {
+		dataName := "AFI"
+		subgraphName := "uniswapV2"
+		graphqlOut, mesg := DoCallGraphQLAPI(dataName, subgraphName)
+		if mesg != "ok" {
+			print(mesg)
+			return
+		}
+		pairData := graphqlOut.Data.UniSwapPairData
+		token1Price := pairData.Token1Price
+		uniSwapToken1 := pairData.UniSwapToken1
+		totalLiquitidy1 := uniSwapToken1.TotalLiquidity
+		print("token1Price:", token1Price, ", totalLiquitidy1:", totalLiquitidy1)
+		bitSize := 64
+		if f, err := strconv.ParseFloat(token1Price, bitSize); err == nil {
+			print("float type:", f) // bitSize is 32 for float32 convertible, 64 for float64
+		} else {
+			print(err)
+		}
+
+	}
+	if IsToRunFunc1 == 3 {
+		// proto := "btc"
+		// bcAddr := "12t9YDPgwueZ9NyMgw519p7AA8isjr6SMw"
+
+		bcAddr := "0x304a554a310c7e546dfe434669c62820b7d83490" //dao hacker with no score
+		msgOut := DoCallAnChainAPI("eth", bcAddr)
+		if msgOut != "ok" {
+			return
+		}
+	}
+	if IsToRunFunc1 == 4 {
+		reqBody := ReqBody{
+			SourceName: "uniswap",
+			Token0:     "afi",
+			Token1:     "usdc",
+		}
+		inputLambda := InputLambda{
+			Body: reqBody,
+		}
+		outputLambdaPt, err := ariesU(inputLambda)
+		print("result:", outputLambdaPt)
+		if err != nil || outputLambdaPt.Mesg != "ok" {
+			print("\n====>>>> err@ writeRowX")
+		}
+		print("IsToScrape:", IsToScrape)
+	}
+
+	if IsToRunFunc1 == 5 {
+		sourceURL := "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
+		loadingTime := 7
+		IsToScrape = false
+		regexpStr := `[-+]?[0-9]*\.?[0-9]+`
+		ss, err := chromedpScraper(sourceURL, loadingTime, IsToScrape)
+		if err != nil {
+			log.Fatal(err)
+		}
+		print("scraper output:", ss)
+		print("chromedpScraper is successful")
+		for idx, v := range ss {
+			print("idx", idx, ":", v)
+			v2 := strings.Replace(v, ",", "", -1)
+			out, err := regexp2FindInBtw(v2, regexpStr)
+			if err != nil {
+				print("err:", err)
+			}
+			print("out:", out)
+		}
+		//print("outerHTML1:", strings.TrimSpace(outerHTML1))
+		//<div class="sc-bdVaJa KpMoH css-9on69b">$10.39</div>
+	}
+	if IsToRunFunc1 == 6 {
+		//setupEthereum()
+		rewardsPool := "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
+		rewardRate, totalSupply, err := getRewardsCtrtValues(rewardsPool, "mainnet")
+		if err != nil {
+			print("setupEthereum failed")
+			os.Exit(1)
+		}
+		print("rewardRate:", rewardRate, ", totalSupply:", totalSupply)
+	}
+	if IsToRunFunc1 == 7 {
+		tokenPrice := float64(33.00001)
+		mag := int64(100000)
+		tokenPriceBI := float64ToBigInt(tokenPrice, mag)
+		print("tokenPriceBI:", tokenPriceBI)
+
+		maginfierBF := big.NewFloat(1000000)
+		var ourAPYbn, _ = new(big.Int).SetString("547040", 10)
+		print("ourAPYbn:", ourAPYbn)
+		ourAPYf := new(big.Float).SetInt(ourAPYbn)
+		print("ourAPYf:", ourAPYf)
+		ourAPYbf := new(big.Float).Quo(ourAPYf, maginfierBF)
+		print("ourAPYbf:", ourAPYbf)
+	}
+
 	//print("\nport"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 	log1("listening on", port)
 	if IsToRunFunc1 == 0 {
@@ -330,6 +326,11 @@ func main() {
 	w.Header().Set("Content-Type","application/json")
 	respondWithJSON(w, "Update completed Successfully")
 
+		case 1: // rinkeby
+			addrRewardsPool = "0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6"
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6
+			curl 'localhost:3000/ariesapy?rewardspool=0xbf76248d5e3bfd1d4dde4369fe6163289a0267f6' | jq
+			
 
 
 https://stats.finance/robots.txt ... ok
@@ -373,6 +374,20 @@ https://api.aries.financial/aries10 ... done by 0x48
 
 https://api.aries.financial/
 https://api.aries.financial/ping
+
+//--------------------==
+	//router.HandleFunc("/member", httpUpdateUser).Methods("PUT")
+	//router.HandleFunc("/member", httpDeleteUser).Methods("DELETE")
+
+	// router.HandleFunc("/securities", httpCreateUsers).Methods("POST")
+	// router.HandleFunc("/securities", httpReadUsers).Methods("GET")
+
+		//router.HandleFunc("/vaultethaddr", httpVaultEthAddrR).Methods("GET")
+
+	// router.HandleFunc("/aries10", httpApyC).Methods("POST")
+	// router.HandleFunc("/aries10", httpApyR).Methods("GET")
+	// router.HandleFunc("/aries10reset", httpApyReset).Methods("PUT")
+	// router.HandleFunc("/aries10", httpApyU).Methods("PUT")
 
 //--------------------== future use
 Read:

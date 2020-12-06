@@ -9,10 +9,10 @@ RewardsPools:
     lpToken: "0x61ad86291Cf96A43265c0c73B219Ae5Fd7ca368b"
     rwToken: ""
     rewardsCtrt: "0xBF76248d5e3bfd1d4dDE4369Fe6163289A0267F6"
-    lpTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
+    lpTokenPriceSource: ""
     totalLiquiditySource: ""
     loadingTime: 8
-    rwTokenPriceSource: ""
+    rwTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
     decimalPlace: 18
   - id: "002"
     name: "AFI_Governance"
@@ -20,10 +20,10 @@ RewardsPools:
     lpToken: "0x68E8A20128e1902C02f533a02eD0cFd8396E3Fbc"
     rwToken: ""
     rewardsCtrt: "0x9cd43309C9E122A13b466391bABC5deC8bE1E01E"
-    lpTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
+    lpTokenPriceSource: ""
     totalLiquiditySource: ""
     loadingTime: 8
-    rwTokenPriceSource: ""
+    rwTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
     decimalPlace: 18
   - id: "011"
     name: "UniLP_USDC_AFI"
@@ -31,10 +31,10 @@ RewardsPools:
     lpToken: ""
     rwToken: ""
     rewardsCtrt: "0xd40cADE3f71C20Ba6FE940E431c890dC100E97d6"
-    lpTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
+    lpTokenPriceSource: ""
     totalLiquiditySource: ""
     loadingTime: 8
-    rwTokenPriceSource: ""
+    rwTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
     decimalPlace: 6
   - id: "021"
     name: "afUSDC"
@@ -45,7 +45,7 @@ RewardsPools:
     lpTokenPriceSource: ""
     totalLiquiditySource: ""
     loadingTime: 8
-    rwTokenPriceSource: ""
+    rwTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
   - id: "031"
     name: "afUSDT"
     network: "mainnet"
@@ -55,7 +55,7 @@ RewardsPools:
     lpTokenPriceSource: ""
     totalLiquiditySource: ""
     loadingTime: 8
-    rwTokenPriceSource: ""
+    rwTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
     decimalPlace: 6
   - id: "041"
     name: "afiDAI"
@@ -66,5 +66,5 @@ RewardsPools:
     lpTokenPriceSource: ""
     totalLiquiditySource: ""
     loadingTime: 8
-    rwTokenPriceSource: ""
+    rwTokenPriceSource: "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
     decimalPlace: 18

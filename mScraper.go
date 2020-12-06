@@ -104,7 +104,7 @@ func fetchCoinMarketCap() ([]byte, error) {
 }*/
 
 func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]string, error) {
-	log1("---------------== chromedpScraper()")
+	log1("-----------== chromedpScraper()")
 	if isToScrape {
 		ctx, cancel := chromedp.NewContext(
 			context.Background(),
@@ -116,7 +116,7 @@ func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]stri
 		defer cancel()
 
 		var text1, text2 string
-		log1("run chromedp")
+		log1("run chromedp. loadingTime:", loadingTime, ", targetURL:", targetURL)
 		err := chromedp.Run(ctx,
 			chromedp.Navigate(targetURL),
 			// wait for element is visible(loaded)
@@ -139,11 +139,15 @@ func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]stri
 		if len(text2) > 2 {
 			text2 = strings.TrimSpace(text2)[2:]
 		}
-		log1("chromedpScraper is successful")
+		if err != nil {
+			logE.Println("@chromedpScraper:", err)
+		} else {
+			log1("chromedpScraper is successful")
+		}
 		return []string{strings.TrimSpace(text1), text2}, err
 	}
 	log1("isToScrape is false")
-	return []string{"$1022.03", "AFI = 33.00001 USDC"}, nil
+	return []string{"$4,552.03", "AFI = 846.00001 USDC"}, nil
 }
 
 func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, error) {
@@ -171,14 +175,11 @@ func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, er
 
 func getTokenData(tokenPriceSource string, loadingTime int) (PairData, error) {
 	log1("-----------== getTokenPairData()")
-	var tokenPrice float64 = 1.0
-	var totalLiquidity float64 = 4020.01
-
 	if tokenPriceSource == "" {
-		log1("no tokenPriceSource... use default tokenPrice and totalLiquidity...")
+		log1("no tokenPriceSource... use fake tokenPrice and totalLiquidity...")
 		return PairData{
-			Price:          tokenPrice,
-			TotalLiquidity: totalLiquidity,
+			Price:          RwTokenPriceFake,
+			TotalLiquidity: RwTokenTotalLiquidityFake,
 		}, nil
 	}
 	if loadingTime <= 0 {
