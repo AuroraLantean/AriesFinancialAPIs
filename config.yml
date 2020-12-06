@@ -57,3 +57,14 @@ RewardsPools:
     loadingTime: 8
     rwTokenPriceSource: ""
     decimalPlace: 6
+  - id: "041"
+    name: "afiDAI"
+    network: "mainnet"
+    lpToken: "0x0ea9f8c451f472e9f9463d76097b8d0821cf1a55"
+    rwToken: ""
+    rewardsCtrt: "0x8667D16150AcAA1FF19AcC5E5c64Bf0Ba1d551b3"
+    lpTokenPriceSource: ""
+    totalLiquiditySource: ""
+    loadingTime: 8
+    rwTokenPriceSource: ""
+    decimalPlace: 18

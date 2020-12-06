@@ -31,9 +31,6 @@ var IsToScrape = true
 // IsToRunFunc1 ...
 var IsToRunFunc1 = 1
 
-// isServerON ...
-var isServerON = true
-
 // MaxRiskScore ...
 var MaxRiskScore = 90
 
@@ -49,6 +46,7 @@ var Cfg Config
 var logW *log.Logger
 var logI *log.Logger
 var logE *log.Logger
+
 // log1 ... to print logs
 //var logE2 = logE.Println
 
@@ -264,7 +262,7 @@ func main() {
 	}
 
 	if IsToRunFunc1 == 1 {
-		choice := 21
+		choice := 41
 		var addrRewardsPool string
 		switch choice {
 		case 1:
@@ -289,6 +287,13 @@ func main() {
 			*/
 		case 31:
 			addrRewardsPool = "0x825241bA78700c11a4615523dF4B70F78C7384aa"
+		case 41:
+			addrRewardsPool = "0x8667D16150AcAA1FF19AcC5E5c64Bf0Ba1d551b3"
+			/*https://af-api.aries.financial/ariesapy?rewardspool=0x8667D16150AcAA1FF19AcC5E5c64Bf0Ba1d551b3
+			curl 'localhost:3000/ariesapy?rewardspool=0x8667D16150AcAA1FF19AcC5E5c64Bf0Ba1d551b3' | jq
+			*/
+		default:
+			addrRewardsPool = ""
 		}
 		print("addrRewardsPool:", addrRewardsPool)
 		reqBody := ReqBody{
@@ -311,7 +316,7 @@ func main() {
 
 	//print("\nport"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 	log1("listening on", port)
-	if isServerON {
+	if IsToRunFunc1 == 0 {
 		log.Fatal(http.ListenAndServe(port, router))
 	}
 }

@@ -171,8 +171,8 @@ func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, er
 
 func getTokenData(tokenPriceSource string, loadingTime int) (PairData, error) {
 	log1("-----------== getTokenPairData()")
-	var tokenPrice float64 = 1.00001
-	var totalLiquidity float64 = 1020.01
+	var tokenPrice float64 = 1.0
+	var totalLiquidity float64 = 4020.01
 
 	if tokenPriceSource == "" {
 		log1("no tokenPriceSource... use default tokenPrice and totalLiquidity...")

@@ -85,7 +85,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	lpTokenData, err := getTokenData(lpTokenPriceSource, loadingTime)
 	if err != nil {
 		logE.Println("err@ chromedpScraper lptokenPrice:", err)
-		lpTokenData = PairData{1.01, 873.1, 0, 0, 0}
+		lpTokenData = PairData{1.0, 873.1, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
 		// 	Mesg: "err@ chromedpScraper lpTokenPrice",
@@ -124,7 +124,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	log1("address of RewardsPool:", addrRewardsPool)
 	var TVL *big.Int
 	switch pool.ID {
-	case "001", "002": //AFI Governance Pool
+	case "001", "002", "041": //AFI Governance, afDAI
 		log1("use TVL = totalStakedAmount * lpTokenPrice")
 		TVL = new(big.Int).Mul(totalSupply, lpPriceBI)
 		rwPriceBI = lpPriceBI
@@ -141,7 +141,7 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 		}
 		TVL = new(big.Int).Mul(base, lpTotalLiquidityBI)
 
-	case "021", "031": // afUSDC, afUSDT pool
+	case "021", "031": // afUSDC, afUSDT
 		log1("pool ID =", pool.ID,"... uses 6 decimal places!")
 		log1("use TVL = totalStakedAmount * lpTokenPrice")
 		TVL1 := new(big.Int).Mul(totalSupply, lpPriceBI)
