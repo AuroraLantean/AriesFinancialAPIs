@@ -1,6 +1,6 @@
 EthereumNetwork:
-  name: "rinkeby"
-  #name: "mainnet"
+  #name: "rinkeby"
+  name: "mainnet"
 
 RewardsPools:
   - id: "001"

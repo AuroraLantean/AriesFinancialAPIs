@@ -77,6 +77,30 @@ func httpAriesU(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func httpGetAfiData(w http.ResponseWriter, r *http.Request) {
+	log1("---------------== httpGetAfiData")
+	//RewardsPool := r.URL.Query().Get("rewardspool")
+	reqBody := ReqBody{}
+	log1("over to lambda function")
+	log1("reqBody:", reqBody)
+	inputLambda := InputLambda{Body: reqBody}
+	outputLambdaPt, err := getAfiData(inputLambda)
+	log1("result:", outputLambdaPt)
+	if err != nil || outputLambdaPt.Mesg != "ok" {
+		logE.Println("\nerr@ lambda function output")
+	}
+
+	log1("IsToScrape:", IsToScrape)
+	w.Header().Set("Content-Type", "application/json")
+	//Allow CORS here By * or specific origin
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	err = json.NewEncoder(w).Encode(*outputLambdaPt)
+	if err != nil {
+		logE.Println("Error @ json.NewEncoder:", err)
+	}
+}
+
 // httpGetApyAries ...
 func httpGetApyAries(w http.ResponseWriter, r *http.Request) {
 	log1("---------------== httpGetApyAries")

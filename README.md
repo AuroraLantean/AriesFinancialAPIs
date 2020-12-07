@@ -34,6 +34,7 @@
 
 ## Installation
 Install Go 1.15.3
+INstall Google Chrome for data scraping. Check installation by running the command "google-chrome"
 
 Turn on Go module: <br>
 $ export GO111MODULE=on
@@ -87,6 +88,12 @@ request body: Use either userID or ethAdress<br>
 
 {"ethereumAddr":"your_eth_address"}<br>
 {"userID":"5"}<br>
+
+------------== Get AFI Data<br>
+request type: GET, endpoint: /afidata<br>
+request params: none<br>
+
+/afidata
 
 ------------== Get Rewards Pool APY<br>
 request type: GET, endpoint: /ariesapy<br>

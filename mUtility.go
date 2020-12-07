@@ -465,8 +465,8 @@ func doregexp2FindInBtw(ss []string, regexpStr string) (PairData, error) {
 		v2 := strings.Replace(v, ",", "", -1)
 		out, err := regexp2FindInBtw(v2, regexpStr)
 		if err != nil {
-			logE.Println("err:", err)
-			return PairData{}, nil
+			logE.Println("err@ regexp2FindInBtw:", err)
+			return pairData, err
 		}
 		log1("out:", out)
 		switch {

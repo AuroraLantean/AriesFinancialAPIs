@@ -206,10 +206,10 @@ func getRewardsCtrtValues(addrRewardsPool string, network string) (*big.Int, *bi
 		if err != nil {
 			return n1, n1, err
 		}
-		log1("transaction hash: %s", tx.Hash().Hex())
+		log1("transaction hash:", tx.Hash().Hex())
 	} else {
 		log1("\nno transaction was made")
-		log1("\namountToSend: %s", amountToSend)
+		log1("\namountToSend:", amountToSend)
 	}
 
 	return rewardRate, totalSupply, nil

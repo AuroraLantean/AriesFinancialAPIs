@@ -141,52 +141,47 @@ func chromedpScraper(targetURL string, loadingTime int, isToScrape bool) ([]stri
 		}
 		if err != nil {
 			logE.Println("@chromedpScraper:", err)
-		} else {
-			log1("chromedpScraper is successful")
+			log1("chromedpScraper failed. Use fake data")
+			return []string{"$4,552.03", "AFI = 846.00001 USDC"}, err
 		}
+		log1("chromedpScraper is successful")
 		return []string{strings.TrimSpace(text1), text2}, err
 	}
 	log1("isToScrape is false")
 	return []string{"$4,552.03", "AFI = 846.00001 USDC"}, nil
 }
 
-func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, error) {
+func doChromedpAndRegexp(tokenPriceSource string, loadingTime int) (PairData, error, error) {
 	log1("-----------== doChromedpAndRegexp()")
 	regexpStr := `[-+]?[0-9]*\.?[0-9]+`
 	pairData := PairData{}
 	var ss []string
-	var err error
 	if tokenPriceSource == "" || loadingTime <= 0 {
 		logE.Println("input invalid")
-		return pairData, nil
+		return pairData, errors.New("input invalid"), nil
 	}
-	ss, err = chromedpScraper(tokenPriceSource, loadingTime, IsToScrape)
-	if err != nil {
-		return pairData, err
-	}
+	ss, err1 := chromedpScraper(tokenPriceSource, loadingTime, IsToScrape)
 
 	log1("scraper output:", ss)
-	pairData, err = doregexp2FindInBtw(ss, regexpStr)
-	if err != nil {
-		return pairData, err
-	}
-	return pairData, nil
+	pairData, err2 := doregexp2FindInBtw(ss, regexpStr)
+
+	return pairData, err1, err2
 }
 
-func getTokenData(tokenPriceSource string, loadingTime int) (PairData, error) {
+func getTokenData(tokenPriceSource string, loadingTime int) (PairData, error, error) {
 	log1("-----------== getTokenPairData()")
 	if tokenPriceSource == "" {
 		log1("no tokenPriceSource... use fake tokenPrice and totalLiquidity...")
 		return PairData{
 			Price:          RwTokenPriceFake,
 			TotalLiquidity: RwTokenTotalLiquidityFake,
-		}, nil
+		}, nil, nil
 	}
 	if loadingTime <= 0 {
-		return PairData{}, errors.New("loading time invalid")
+		return PairData{}, errors.New("loading time invalid"), nil
 	}
-	pairData, err := doChromedpAndRegexp(tokenPriceSource, loadingTime)
-	return pairData, err
+	pairData, err1, err2 := doChromedpAndRegexp(tokenPriceSource, loadingTime)
+	return pairData, err1, err2
 }
 
 func collyScraperFakeYFI1() ([]string, error) {

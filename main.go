@@ -29,8 +29,8 @@ var IsProduction = true // then set c value in the switch
 // IsToScrape ...
 var IsToScrape = true
 
-// IsToRunFunc1 ...
-var IsToRunFunc1 = 0
+// RunFuncNum ...
+var RunFuncNum = 0
 
 // MaxRiskScore ...
 var MaxRiskScore = 90
@@ -77,6 +77,12 @@ var RwTokenPriceFake = float64(846.06242)
 // RwTokenTotalLiquidityFake ...
 var RwTokenTotalLiquidityFake = float64(4552)
 
+// LpTokenPriceFake ...
+var LpTokenPriceFake = float64(1.0)
+
+// LpTokenTotalLiquidityFake ...
+var LpTokenTotalLiquidityFake = float64(4552)
+
 func init() {
 	//-------------------== Initial Conditions
 	// append to the file or make a new file
@@ -107,7 +113,7 @@ func init() {
 	//IsToScrape = os.Getenv("ISTOSCRAPE") == "1"
 	IsToScrape = 1 == 1
 	LogMode = 1 //dev: 0, log1: 1
-	IsToRunFunc1 = 0
+	RunFuncNum = 0
 	IsProduction = 1 == 1
 
 	err = cleanenv.ReadConfig("config.yml", &Cfg)
@@ -151,6 +157,7 @@ func main() {
 
 	router.HandleFunc("/ariesapy", httpGetApyAries).Methods("GET")
 	router.HandleFunc("/ariesapy", httpAriesU).Methods("PUT")
+	router.HandleFunc("/afidata", httpGetAfiData).Methods("GET")
 
 	router.HandleFunc("/cors", httpCorsGet).Methods("GET")
 	router.HandleFunc("/cors", httpCorsPost).Methods("POST")
@@ -163,7 +170,7 @@ func main() {
 	*/
 
 	//-------------------== test functions
-	if IsToRunFunc1 == 1 {
+	if RunFuncNum == 1 {
 		choice := 41
 		var addrRewardsPool string
 		switch choice {
@@ -172,17 +179,17 @@ func main() {
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0x9cd43309c9e122a13b466391babc5dec8be1e01e
 			curl 'localhost:3000/ariesapy?rewardspool=0x9cd43309C9E122A13b466391bABC5deC8bE1E01E' | jq
 			*/
-		case 11:
+		case 11: //UniLP_USDC_AFI
 			addrRewardsPool = "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6
 			curl 'localhost:3000/ariesapy?rewardspool=0xd40cade3f71c20ba6fe940e431c890dc100e97d6' | jq
 			*/
-		case 21:
+		case 21: //afUSDC
 			addrRewardsPool = "0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C"
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C
 			curl 'localhost:3000/ariesapy?rewardspool=0xAC7DE028cCe2a99e9399aB0bE198Bc950994f50C' | jq
 			*/
-		case 31:
+		case 31: // afUSDT
 			addrRewardsPool = "0x825241bA78700c11a4615523dF4B70F78C7384aa"
 			/*https://af-api.aries.financial/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa
 			curl 'localhost:3000/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa' | jq
@@ -209,12 +216,22 @@ func main() {
 		}
 		print("addrRewardsPool:", addrRewardsPool)
 		print("IsToScrape:", IsToScrape)
-	} /*
-		-------==
-		curl 'localhost:3000/ariesapy?rewardspool=0x825241bA78700c11a4615523dF4B70F78C7384aa' | jq
+	} 
+	
+	/*
+		curl 'localhost:3000/afidata' | jq
 	*/
+	if RunFuncNum == 8 {
+		inputLambda := InputLambda{}
+		outputLambdaPt, err := getAfiData(inputLambda)
+		print("result:", outputLambdaPt)
+		if err != nil || outputLambdaPt.Mesg != "ok" {
+			print("\n====>>>> err@ writeRowX")
+		}
+		print("IsToScrape:", IsToScrape)
+	}
 
-	if IsToRunFunc1 == 2 {
+	if RunFuncNum == 2 {
 		dataName := "AFI"
 		subgraphName := "uniswapV2"
 		graphqlOut, mesg := DoCallGraphQLAPI(dataName, subgraphName)
@@ -235,7 +252,7 @@ func main() {
 		}
 
 	}
-	if IsToRunFunc1 == 3 {
+	if RunFuncNum == 3 {
 		// proto := "btc"
 		// bcAddr := "12t9YDPgwueZ9NyMgw519p7AA8isjr6SMw"
 
@@ -245,7 +262,7 @@ func main() {
 			return
 		}
 	}
-	if IsToRunFunc1 == 4 {
+	if RunFuncNum == 4 {
 		reqBody := ReqBody{
 			SourceName: "uniswap",
 			Token0:     "afi",
@@ -262,7 +279,7 @@ func main() {
 		print("IsToScrape:", IsToScrape)
 	}
 
-	if IsToRunFunc1 == 5 {
+	if RunFuncNum == 5 {
 		sourceURL := "https://info.uniswap.org/pair/0xb6a0d0406772ac3472dc3d9b7a2ba4ab04286891"
 		loadingTime := 7
 		IsToScrape = false
@@ -285,7 +302,7 @@ func main() {
 		//print("outerHTML1:", strings.TrimSpace(outerHTML1))
 		//<div class="sc-bdVaJa KpMoH css-9on69b">$10.39</div>
 	}
-	if IsToRunFunc1 == 6 {
+	if RunFuncNum == 6 {
 		//setupEthereum()
 		rewardsPool := "0xd40cade3f71c20ba6fe940e431c890dc100e97d6"
 		rewardRate, totalSupply, err := getRewardsCtrtValues(rewardsPool, "mainnet")
@@ -295,7 +312,7 @@ func main() {
 		}
 		print("rewardRate:", rewardRate, ", totalSupply:", totalSupply)
 	}
-	if IsToRunFunc1 == 7 {
+	if RunFuncNum == 7 {
 		tokenPrice := float64(33.00001)
 		mag := int64(100000)
 		tokenPriceBI := float64ToBigInt(tokenPrice, mag)
@@ -312,7 +329,7 @@ func main() {
 
 	//print("\nport"+port, ", IsProduction:", IsProduction, ", IsToScrape:", IsToScrape)
 	log1("listening on", port)
-	if IsToRunFunc1 == 0 {
+	if RunFuncNum == 0 {
 		log.Fatal(http.ListenAndServe(port, router))
 	}
 }

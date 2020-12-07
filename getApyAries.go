@@ -83,10 +83,10 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	ampLPint := 100000
 	ampRWint := 100000
 	//----------== RW Token ... Get rwToken Price
-	rwTokenData, err := getTokenData(rwTokenPriceSource, loadingTime)
-	if err != nil {
-		logE.Println("err@ chromedpScraper rwTokenPrice:", err)
-		log1("use fake data: tokenPrice =", RwTokenPriceFake, ", totalLiquidity = ", RwTokenTotalLiquidityFake)
+	rwTokenData, err1, err2 := getTokenData(rwTokenPriceSource, loadingTime)
+	if err1 != nil || err2 != nil {
+		logE.Println("err@ doChromedpAndRegexp getting rwTokenPrice. err1:", err1, ", err2:", err2)
+		log1("use fake data: rwTokenPrice =", RwTokenPriceFake, ", rwTotalLiquidity = ", RwTokenTotalLiquidityFake)
 		rwTokenData = PairData{RwTokenPriceFake, RwTokenTotalLiquidityFake, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
@@ -102,11 +102,11 @@ func getApyAries(inputLambda InputLambda) (*OutputLambda, error) {
 	log1("rwTotalLiquidityBI:", rwTotalLiquidityBI)
 
 	//----------== LP Token ...lpToken Price, Total Liquidity
-	lpTokenData, err := getTokenData(lpTokenPriceSource, loadingTime)
-	if err != nil {
-		logE.Println("err@ chromedpScraper rwTokenPrice:", err)
-		log1("use fake data: tokenPrice =", RwTokenPriceFake, ", totalLiquidity = ", RwTokenTotalLiquidityFake)
-		lpTokenData = PairData{RwTokenPriceFake, RwTokenTotalLiquidityFake, 0, 0, 0}
+	lpTokenData, err1, err2 := getTokenData(lpTokenPriceSource, loadingTime)
+	if err1 != nil || err2 != nil {
+		logE.Println("err@ doChromedpAndRegexp getting lpTokenPrice. err1:", err1, ", err2:", err2)
+		log1("use fake data: lpTokenPrice =", LpTokenPriceFake, ", lpTotalLiquidity = ", LpTokenTotalLiquidityFake)
+		lpTokenData = PairData{LpTokenPriceFake, LpTokenTotalLiquidityFake, 0, 0, 0}
 		// return &OutputLambda{
 		// 	Code: "000105",
 		// 	Mesg: "err@ chromedpScraper lpTokenPrice",
